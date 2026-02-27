@@ -261,63 +261,169 @@
 
 <main class="container">
 
-  <!-- Stats -->
-  <div class="stats-bar">
-    <div class="stat">
-      <span class="stat-number red">10</span>
-      <span class="stat-label">Sections</span>
+  <!-- ============================================================ -->
+  <!-- HERO INTRO                                                    -->
+  <!-- ============================================================ -->
+  <div style="padding:48px 0 32px;">
+
+    <!-- The pitch -->
+    <div style="max-width:760px;margin-bottom:40px;">
+      <div style="width:40px;height:3px;background:var(--arc-red);margin-bottom:16px;"></div>
+      <p style="font-family:var(--font-headline);font-size:22px;font-weight:400;color:var(--arc-black);line-height:1.6;margin-bottom:16px;">
+        Open ArcGIS Map Viewer. See the blue buttons, the side panels, the dropdowns, the layer list? That's <strong>Calcite</strong>. Open Experience Builder. Same thing. Field Maps, too.
+      </p>
+      <p style="font-size:16px;color:var(--arc-gray-700);line-height:1.7;margin-bottom:16px;">
+        Calcite is Esri's official UI component library &mdash; a set of pre-built, production-tested HTML elements that power almost every ArcGIS web application. Instead of writing hundreds of lines of CSS to style a button, a dropdown, or a side panel, you write one line of HTML:
+      </p>
+      <div style="background:var(--arc-gray-900);color:#e0e0e0;padding:16px 20px;font-family:var(--font-data);font-size:15px;line-height:1.5;margin-bottom:16px;">
+        &lt;<span style="color:#7ec8e3;">calcite-button</span>&gt;Save Report&lt;/<span style="color:#7ec8e3;">calcite-button</span>&gt;
+      </div>
+      <p style="font-size:16px;color:var(--arc-gray-700);line-height:1.7;">
+        That single tag gives you a styled, accessible, mobile-friendly button with hover states, focus rings, loading spinners, and icon support &mdash; all matching the look of ArcGIS Online. No CSS file. No framework. No npm install. Just HTML tags that work.
+      </p>
     </div>
-    <div class="stat">
-      <span class="stat-number">20+</span>
-      <span class="stat-label">Components</span>
+
+    <!-- Three key concepts -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-bottom:40px;">
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;border-left:3px solid var(--arc-red);">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-red);margin-bottom:8px;">Web Components</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:8px;">Custom HTML elements</div>
+        <p style="font-size:14px;color:var(--arc-gray-700);line-height:1.6;">
+          Calcite components are <strong>Web Components</strong> &mdash; custom HTML tags like <code style="font-family:var(--font-data);font-size:12px;background:var(--arc-cream);padding:1px 4px;">&lt;calcite-panel&gt;</code> that the browser treats like native elements. They work in any HTML page, any framework (React, Vue, Angular), or no framework at all.
+        </p>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:8px;">Slots &amp; Attributes</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:8px;">Configure with HTML, not CSS</div>
+        <p style="font-size:14px;color:var(--arc-gray-700);line-height:1.6;">
+          Instead of CSS classes, you use <strong>attributes</strong> (<code style="font-family:var(--font-data);font-size:12px;background:var(--arc-cream);padding:1px 4px;">kind="danger"</code>) and <strong>slots</strong> (<code style="font-family:var(--font-data);font-size:12px;background:var(--arc-cream);padding:1px 4px;">slot="header"</code>) to customize appearance and layout. The styling is built in.
+        </p>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:8px;">CDN Only</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:8px;">Two lines to get started</div>
+        <p style="font-size:14px;color:var(--arc-gray-700);line-height:1.6;">
+          Add one <code style="font-family:var(--font-data);font-size:12px;background:var(--arc-cream);padding:1px 4px;">&lt;script&gt;</code> and one <code style="font-family:var(--font-data);font-size:12px;background:var(--arc-cream);padding:1px 4px;">&lt;link&gt;</code> tag to your HTML. No Node.js, no build step, no package.json. Every Calcite component becomes available instantly.
+        </p>
+      </div>
     </div>
-    <div class="stat">
-      <span class="stat-number">0</span>
-      <span class="stat-label">npm installs</span>
+
+    <!-- Before/After comparison -->
+    <div style="margin-bottom:40px;">
+      <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:16px;">Without Calcite vs. With Calcite</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;">
+          <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:12px;">Without &mdash; 14 lines of CSS + HTML</div>
+          <div style="background:var(--arc-gray-900);color:#e0e0e0;padding:14px;font-family:var(--font-data);font-size:12px;line-height:1.6;overflow-x:auto;white-space:pre;">&lt;style&gt;
+  .btn {
+    background: #0079c1;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .btn:hover { background: #005e95; }
+  .btn:focus { outline: 2px solid #0079c1; }
+&lt;/style&gt;
+&lt;button class="btn"&gt;Save Report&lt;/button&gt;</div>
+        </div>
+        <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;border-left:3px solid var(--arc-success);">
+          <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-success);margin-bottom:12px;">With Calcite &mdash; 1 line</div>
+          <div style="background:var(--arc-gray-900);color:#e0e0e0;padding:14px;font-family:var(--font-data);font-size:12px;line-height:1.6;">&lt;<span style="color:#7ec8e3;">calcite-button</span>&gt;Save Report&lt;/<span style="color:#7ec8e3;">calcite-button</span>&gt;</div>
+          <p style="font-size:13px;color:var(--arc-gray-500);margin-top:12px;line-height:1.5;">Same result. Plus hover, focus, loading state, icon support, dark mode, RTL, and WCAG AA accessibility &mdash; all included.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" style="border-top:1px solid var(--arc-gray-100);">
+      <div class="stat">
+        <span class="stat-number red">10</span>
+        <span class="stat-label">Sections</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">20+</span>
+        <span class="stat-label">Components</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">0</span>
+        <span class="stat-label">npm installs</span>
+      </div>
     </div>
   </div>
 
   <!-- ============================================================ -->
-  <!-- 01: WHAT IS CALCITE & WHEN TO USE IT                         -->
+  <!-- 01: WHEN TO USE CALCITE (& WHEN NOT TO)                      -->
   <!-- ============================================================ -->
   <div class="section" id="what">
     <div class="section-header">
       <span class="section-number">01</span>
-      <h2>What Is Calcite?</h2>
+      <h2>When to Use Calcite</h2>
     </div>
-    <p class="section-desc">Calcite is Esri's official UI component library &mdash; the same LEGO pieces used to build ArcGIS Map Viewer, Field Maps, and Experience Builder. You get pre-built, accessible, mobile-friendly web components with zero CSS from scratch.</p>
+    <p class="section-desc">Calcite isn't the only game in town. Esri has three UI libraries. Picking the right one depends on what you're building.</p>
     <div class="section-rule"></div>
 
-    <div class="when-box">
-      <strong>WHEN to use Calcite:</strong> Standalone HTML apps that should look like Esri products, custom Experience Builder widgets, dashboards with map + filter panels, or any ArcGIS web tool that needs polished UI fast.
+    <!-- Use / Don't Use side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-success);margin-bottom:12px;">Use Calcite when you're building:</div>
+        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:2;padding-left:20px;">
+          <li>A standalone HTML app that should look like an Esri product</li>
+          <li>A custom Experience Builder widget</li>
+          <li>A dashboard with map + filter panels + data tables</li>
+          <li>Any ArcGIS web tool that needs polished UI fast</li>
+          <li>A prototype or demo that needs to look professional immediately</li>
+        </ul>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:12px;">You don't need Calcite for:</div>
+        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:2;padding-left:20px;">
+          <li>Python scripts (no UI)</li>
+          <li>ArcGIS Pro (desktop, not web)</li>
+          <li>ArcGIS Online's built-in widgets (already use Calcite internally)</li>
+          <li>A non-GIS web app with its own design system</li>
+        </ul>
+      </div>
     </div>
 
+    <!-- Three libraries table -->
+    <div style="font-family:var(--font-headline);font-size:16px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">The three Esri UI libraries</div>
     <table class="decision-table">
       <thead>
         <tr>
           <th>Library</th>
+          <th>What It Is</th>
           <th>Use When</th>
-          <th>Example</th>
+          <th>Code Looks Like</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>Calcite Components</td>
+          <td>Web Components (custom HTML tags)</td>
           <td>Standalone HTML apps, custom EB widgets, any ArcGIS-styled UI</td>
           <td style="font-family:var(--font-data);font-size:13px;">&lt;calcite-button&gt;</td>
         </tr>
         <tr>
           <td>Jimu UI</td>
-          <td>Building Experience Builder widgets (primary choice in EB)</td>
+          <td>React components bundled in EB</td>
+          <td>Experience Builder widgets (primary choice inside EB)</td>
           <td style="font-family:var(--font-data);font-size:13px;">&lt;Button&gt; from jimu-ui</td>
         </tr>
         <tr>
           <td>ArcGIS Map Components</td>
-          <td>Embedding maps/scenes as web components</td>
+          <td>Web Components for maps/scenes</td>
+          <td>Embedding maps or 3D scenes as drop-in elements</td>
           <td style="font-family:var(--font-data);font-size:13px;">&lt;arcgis-map&gt;</td>
         </tr>
       </tbody>
     </table>
+
+    <div class="when-box" style="margin-top:24px;">
+      <strong>This page focuses on Calcite Components</strong> &mdash; the one you'll reach for most often when building standalone web tools. Every example below is a live, interactive Calcite component you can click and test right here. Click "View Code" on any example to see the HTML.
+    </div>
   </div>
 
   <!-- ============================================================ -->
