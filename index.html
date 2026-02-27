@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcite Design System — Component Showcase</title>
+
+<!-- Dragon Design System fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Calcite Components CDN -->
+<script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+<link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css">
+
+<style>
+  :root {
+    --arc-red: #ED1B2E;
+    --arc-black: #1a1a1a;
+    --arc-gray-900: #2d2d2d;
+    --arc-gray-700: #4a4a4a;
+    --arc-gray-500: #737373;
+    --arc-gray-300: #a3a3a3;
+    --arc-gray-100: #e5e5e5;
+    --arc-cream: #f7f5f2;
+    --arc-white: #ffffff;
+    --arc-info: #1e4a6d;
+    --arc-success: #2d5a27;
+    --arc-caution: #b8860b;
+    --font-headline: 'Libre Baskerville', Georgia, serif;
+    --font-body: 'Source Sans Pro', 'Helvetica Neue', sans-serif;
+    --font-data: 'IBM Plex Mono', Consolas, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--arc-cream);
+    color: var(--arc-gray-900);
+    line-height: 1.5;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header {
+    background: var(--arc-white);
+    border-bottom: 3px solid var(--arc-black);
+    padding: 32px 0 24px;
+  }
+  .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .org-label {
+    font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px; color: var(--arc-red);
+  }
+  h1 {
+    font-family: var(--font-headline);
+    font-size: 36px; font-weight: 700; color: var(--arc-black);
+    line-height: 1.2; margin-bottom: 8px;
+  }
+  .subtitle { font-size: 18px; color: var(--arc-gray-500); font-weight: 300; }
+
+  /* Sticky Nav */
+  .section-nav {
+    background: var(--arc-white);
+    border-bottom: 1px solid var(--arc-gray-100);
+    padding: 12px 0;
+    position: sticky; top: 0; z-index: 200;
+  }
+  .nav-inner {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .nav-pill {
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 5px 14px; border: 1px solid var(--arc-gray-300);
+    border-radius: 20px; background: var(--arc-white);
+    color: var(--arc-gray-700); cursor: pointer; transition: all 0.15s;
+    text-decoration: none;
+  }
+  .nav-pill:hover { border-color: var(--arc-gray-700); color: var(--arc-black); }
+  .nav-pill.active { background: var(--arc-black); border-color: var(--arc-black); color: var(--arc-white); }
+
+  /* Sections */
+  .section { padding: 48px 0 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .section-number { font-family: var(--font-data); font-size: 14px; font-weight: 500; color: var(--arc-red); }
+  h2 { font-family: var(--font-headline); font-size: 24px; font-weight: 700; color: var(--arc-black); }
+  .section-desc { font-size: 16px; color: var(--arc-gray-500); margin-bottom: 24px; max-width: 720px; }
+  .section-rule { width: 40px; height: 3px; background: var(--arc-red); margin-bottom: 24px; }
+
+  /* Example blocks */
+  .example {
+    background: var(--arc-white);
+    border: 1px solid var(--arc-gray-100);
+    margin-bottom: 24px;
+  }
+  .example-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--arc-gray-100);
+  }
+  .example-title {
+    font-family: var(--font-headline);
+    font-size: 16px; font-weight: 700; color: var(--arc-black);
+  }
+  .example-when {
+    font-size: 13px; color: var(--arc-gray-500); font-style: italic;
+  }
+  .example-demo {
+    padding: 24px;
+    display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px;
+  }
+  .example-demo.col {
+    flex-direction: column;
+  }
+  .toggle-code {
+    font-family: var(--font-data); font-size: 12px;
+    padding: 4px 12px; border: 1px solid var(--arc-gray-300);
+    border-radius: 3px; background: var(--arc-cream);
+    color: var(--arc-gray-700); cursor: pointer; transition: all 0.15s;
+  }
+  .toggle-code:hover { background: var(--arc-gray-100); }
+  .toggle-code.open { background: var(--arc-black); color: var(--arc-white); border-color: var(--arc-black); }
+  .example-code {
+    display: none;
+    background: var(--arc-gray-900);
+    color: #e0e0e0;
+    padding: 20px;
+    font-family: var(--font-data);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    border-top: 1px solid var(--arc-gray-100);
+  }
+  .example-code.open { display: block; }
+
+  /* Tags */
+  .complexity-tag {
+    font-family: var(--font-data); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 2px 8px; border-radius: 2px;
+  }
+  .complexity-tag.simple { background: #e8f5e9; color: var(--arc-success); }
+  .complexity-tag.medium { background: #fff8e1; color: var(--arc-caution); }
+  .complexity-tag.complex { background: #fdecea; color: #c41e3a; }
+
+  /* Stats bar */
+  .stats-bar { display: flex; gap: 48px; padding: 32px 0; border-bottom: 1px solid var(--arc-gray-100); }
+  .stat-number {
+    font-family: var(--font-data); font-size: 32px;
+    font-weight: 500; color: var(--arc-black); line-height: 1;
+  }
+  .stat-number.red { color: var(--arc-red); }
+  .stat-label {
+    font-size: 13px; color: var(--arc-gray-500);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;
+  }
+
+  /* When-to-use boxes */
+  .when-box {
+    background: var(--arc-cream);
+    border-left: 3px solid var(--arc-info);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--arc-gray-700);
+  }
+  .when-box strong { color: var(--arc-info); }
+
+  /* Decision table */
+  .decision-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .decision-table th {
+    text-align: left;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-top: 2px solid var(--arc-black);
+    border-bottom: 1px solid var(--arc-gray-100);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--arc-gray-500);
+  }
+  .decision-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--arc-gray-100);
+    color: var(--arc-gray-700);
+  }
+  .decision-table td:first-child {
+    font-weight: 600;
+    color: var(--arc-black);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 3px solid var(--arc-black);
+    padding: 32px 0; margin-top: 48px; background: var(--arc-white);
+  }
+  .footer-text { font-size: 13px; color: var(--arc-gray-500); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--arc-cream); }
+  ::-webkit-scrollbar-thumb { background: var(--arc-gray-300); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--arc-gray-500); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    h1 { font-size: 28px; }
+    .stats-bar { gap: 24px; flex-wrap: wrap; }
+    .nav-inner { gap: 6px; }
+    .example-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .example-demo { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- HEADER                                                           -->
+<!-- ================================================================ -->
+<header>
+  <div class="container">
+    <div class="header-top">
+      <svg viewBox="0 0 32 32" width="32" height="32">
+        <rect x="12" y="4" width="8" height="24" fill="#ED1B2E"/>
+        <rect x="4" y="12" width="24" height="8" fill="#ED1B2E"/>
+      </svg>
+      <span class="org-label">Dragon Design Lab</span>
+    </div>
+    <h1>Calcite Design System</h1>
+    <div class="subtitle">A hands-on guide to Esri's UI component library &mdash; from buttons to full app layouts</div>
+  </div>
+</header>
+
+<!-- ================================================================ -->
+<!-- STICKY NAV                                                       -->
+<!-- ================================================================ -->
+<nav class="section-nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#what" class="nav-pill active">What &amp; When</a>
+      <a href="#setup" class="nav-pill">Setup</a>
+      <a href="#buttons" class="nav-pill">Buttons</a>
+      <a href="#alerts" class="nav-pill">Alerts</a>
+      <a href="#forms" class="nav-pill">Forms</a>
+      <a href="#cards" class="nav-pill">Cards &amp; Lists</a>
+      <a href="#nav" class="nav-pill">Navigation</a>
+      <a href="#theming" class="nav-pill">Theming</a>
+      <a href="#fullapp" class="nav-pill">Full App</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-number red">9</span>
+      <span class="stat-label">Sections</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">20+</span>
+      <span class="stat-label">Components</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">0</span>
+      <span class="stat-label">npm installs</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 01: WHAT IS CALCITE & WHEN TO USE IT                         -->
+  <!-- ============================================================ -->
+  <div class="section" id="what">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <h2>What Is Calcite?</h2>
+    </div>
+    <p class="section-desc">Calcite is Esri's official UI component library &mdash; the same LEGO pieces used to build ArcGIS Map Viewer, Field Maps, and Experience Builder. You get pre-built, accessible, mobile-friendly web components with zero CSS from scratch.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN to use Calcite:</strong> Standalone HTML apps that should look like Esri products, custom Experience Builder widgets, dashboards with map + filter panels, or any ArcGIS web tool that needs polished UI fast.
+    </div>
+
+    <table class="decision-table">
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Use When</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Calcite Components</td>
+          <td>Standalone HTML apps, custom EB widgets, any ArcGIS-styled UI</td>
+          <td style="font-family:var(--font-data);font-size:13px;">&lt;calcite-button&gt;</td>
+        </tr>
+        <tr>
+          <td>Jimu UI</td>
+          <td>Building Experience Builder widgets (primary choice in EB)</td>
+          <td style="font-family:var(--font-data);font-size:13px;">&lt;Button&gt; from jimu-ui</td>
+        </tr>
+        <tr>
+          <td>ArcGIS Map Components</td>
+          <td>Embedding maps/scenes as web components</td>
+          <td style="font-family:var(--font-data);font-size:13px;">&lt;arcgis-map&gt;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 02: CDN SETUP                                                -->
+  <!-- ============================================================ -->
+  <div class="section" id="setup">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <h2>Setup (2 Lines)</h2>
+    </div>
+    <p class="section-desc">No npm. No build tools. Just add these two lines to any HTML file and every Calcite component is available instantly via CDN.</p>
+    <div class="section-rule"></div>
+
+    <div class="example">
+      <div class="example-header">
+        <span class="example-title">CDN Quick Start</span>
+        <span class="complexity-tag simple">Simple</span>
+      </div>
+      <div class="example-code open" style="display:block;">&lt;!-- Add to &lt;head&gt; — that's it --&gt;
+&lt;script type="module"
+  src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"&gt;
+&lt;/script&gt;
+&lt;link rel="stylesheet"
+  href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css"&gt;
+
+&lt;!-- Now use any component in &lt;body&gt; --&gt;
+&lt;calcite-button&gt;Hello Calcite&lt;/calcite-button&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 03: BUTTONS & ACTIONS                                        -->
+  <!-- ============================================================ -->
+  <div class="section" id="buttons">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <h2>Buttons &amp; Actions</h2>
+    </div>
+    <p class="section-desc">The most common Calcite building blocks. Three button kinds (brand, danger, neutral) and icon-based action buttons for toolbars.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Any interactive control &mdash; form submissions, filter triggers, toolbar icons, confirm/cancel dialogs.
+    </div>
+
+    <!-- Buttons -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Button Kinds</span>
+          <span class="example-when">&mdash; brand (blue), danger (red), neutral (gray)</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-button kind="brand">Primary Action</calcite-button>
+        <calcite-button kind="danger">Delete</calcite-button>
+        <calcite-button kind="neutral" appearance="outline">Cancel</calcite-button>
+        <calcite-button kind="brand" appearance="outline">Outline</calcite-button>
+        <calcite-button kind="brand" round>Round</calcite-button>
+        <calcite-button kind="brand" icon-start="plus">With Icon</calcite-button>
+        <calcite-button kind="brand" loading>Loading</calcite-button>
+      </div>
+      <div class="example-code">&lt;calcite-button kind="brand"&gt;Primary Action&lt;/calcite-button&gt;
+&lt;calcite-button kind="danger"&gt;Delete&lt;/calcite-button&gt;
+&lt;calcite-button kind="neutral" appearance="outline"&gt;Cancel&lt;/calcite-button&gt;
+&lt;calcite-button kind="brand" appearance="outline"&gt;Outline&lt;/calcite-button&gt;
+&lt;calcite-button kind="brand" round&gt;Round&lt;/calcite-button&gt;
+&lt;calcite-button kind="brand" icon-start="plus"&gt;With Icon&lt;/calcite-button&gt;
+&lt;calcite-button kind="brand" loading&gt;Loading&lt;/calcite-button&gt;</div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Action Bar (Toolbar)</span>
+          <span class="example-when">&mdash; vertical or horizontal icon toolbar</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-action-bar layout="horizontal">
+          <calcite-action icon="layers" text="Layers"></calcite-action>
+          <calcite-action icon="filter" text="Filter"></calcite-action>
+          <calcite-action icon="measure" text="Measure"></calcite-action>
+          <calcite-action icon="bookmark" text="Bookmarks"></calcite-action>
+          <calcite-action icon="print" text="Print"></calcite-action>
+        </calcite-action-bar>
+      </div>
+      <div class="example-code">&lt;calcite-action-bar layout="horizontal"&gt;
+  &lt;calcite-action icon="layers" text="Layers"&gt;&lt;/calcite-action&gt;
+  &lt;calcite-action icon="filter" text="Filter"&gt;&lt;/calcite-action&gt;
+  &lt;calcite-action icon="measure" text="Measure"&gt;&lt;/calcite-action&gt;
+  &lt;calcite-action icon="bookmark" text="Bookmarks"&gt;&lt;/calcite-action&gt;
+  &lt;calcite-action icon="print" text="Print"&gt;&lt;/calcite-action&gt;
+&lt;/calcite-action-bar&gt;
+
+&lt;!-- Icons reference: developers.arcgis.com/calcite-design-system/icons/ --&gt;</div>
+    </div>
+
+    <!-- Split Button -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Split Button &amp; Button Group</span>
+          <span class="example-when">&mdash; multi-option actions, grouped controls</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-split-button primary-text="Save" primary-icon-start="save" dropdown-icon-type="chevron" kind="brand">
+          <calcite-dropdown-group>
+            <calcite-dropdown-item>Save as Draft</calcite-dropdown-item>
+            <calcite-dropdown-item>Save &amp; Close</calcite-dropdown-item>
+            <calcite-dropdown-item>Save as Template</calcite-dropdown-item>
+          </calcite-dropdown-group>
+        </calcite-split-button>
+      </div>
+      <div class="example-code">&lt;calcite-split-button primary-text="Save" primary-icon-start="save"
+  dropdown-icon-type="chevron" kind="brand"&gt;
+  &lt;calcite-dropdown-group&gt;
+    &lt;calcite-dropdown-item&gt;Save as Draft&lt;/calcite-dropdown-item&gt;
+    &lt;calcite-dropdown-item&gt;Save &amp; Close&lt;/calcite-dropdown-item&gt;
+    &lt;calcite-dropdown-item&gt;Save as Template&lt;/calcite-dropdown-item&gt;
+  &lt;/calcite-dropdown-group&gt;
+&lt;/calcite-split-button&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 04: ALERTS & NOTIFICATIONS                                   -->
+  <!-- ============================================================ -->
+  <div class="section" id="alerts">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <h2>Alerts &amp; Status Indicators</h2>
+    </div>
+    <p class="section-desc">Banners for success/warning/error states, plus chips for inline status badges. Alerts auto-dismiss or persist &mdash; your choice.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> After form submission (success/error), capacity warnings, status badges on records (Open/Full/Closed), data load confirmations.
+    </div>
+
+    <!-- Alerts -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Alert Banners</span>
+          <span class="example-when">&mdash; 4 kinds: success, warning, danger, info</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col">
+        <calcite-button id="alert-trigger" kind="brand" icon-start="bell">Show All Alerts</calcite-button>
+        <calcite-alert id="alert-success" kind="success" icon="check-circle" auto-close auto-close-duration="medium" label="Success">
+          <div slot="title">Data Saved</div>
+          <div slot="message">Shelter record updated successfully.</div>
+        </calcite-alert>
+        <calcite-alert id="alert-warning" kind="warning" icon="exclamation-mark-triangle" auto-close auto-close-duration="medium" label="Warning">
+          <div slot="title">Capacity Alert</div>
+          <div slot="message">3 shelters approaching 90% capacity.</div>
+        </calcite-alert>
+        <calcite-alert id="alert-danger" kind="danger" icon="exclamation-mark-circle" auto-close auto-close-duration="medium" label="Danger">
+          <div slot="title">Connection Lost</div>
+          <div slot="message">Unable to reach ArcGIS Online. Retrying...</div>
+        </calcite-alert>
+        <calcite-alert id="alert-info" kind="info" icon="information" auto-close auto-close-duration="medium" label="Info">
+          <div slot="title">New Data Available</div>
+          <div slot="message">Feature layer updated 2 minutes ago.</div>
+        </calcite-alert>
+      </div>
+      <div class="example-code">&lt;calcite-alert kind="success" icon="check-circle" open label="Success"&gt;
+  &lt;div slot="title"&gt;Data Saved&lt;/div&gt;
+  &lt;div slot="message"&gt;Shelter record updated successfully.&lt;/div&gt;
+&lt;/calcite-alert&gt;
+
+&lt;!-- kind options: success | warning | danger | info --&gt;
+&lt;!-- auto-close: dismisses automatically --&gt;
+&lt;!-- auto-close-duration: slow | medium | fast --&gt;</div>
+    </div>
+
+    <!-- Chips -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Chips (Status Badges)</span>
+          <span class="example-when">&mdash; inline labels, tags, filter indicators</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-chip kind="brand">Active</calcite-chip>
+        <calcite-chip kind="success" icon="check-circle">Open</calcite-chip>
+        <calcite-chip kind="danger" icon="exclamation-mark-circle">Full</calcite-chip>
+        <calcite-chip kind="warning" icon="exclamation-mark-triangle">At Capacity</calcite-chip>
+        <calcite-chip kind="neutral">Closed</calcite-chip>
+        <calcite-chip closable>Removable Tag</calcite-chip>
+        <calcite-chip appearance="outline" kind="brand">Outline</calcite-chip>
+      </div>
+      <div class="example-code">&lt;calcite-chip kind="brand"&gt;Active&lt;/calcite-chip&gt;
+&lt;calcite-chip kind="success" icon="check-circle"&gt;Open&lt;/calcite-chip&gt;
+&lt;calcite-chip kind="danger" icon="exclamation-mark-circle"&gt;Full&lt;/calcite-chip&gt;
+&lt;calcite-chip kind="warning" icon="exclamation-mark-triangle"&gt;At Capacity&lt;/calcite-chip&gt;
+&lt;calcite-chip kind="neutral"&gt;Closed&lt;/calcite-chip&gt;
+&lt;calcite-chip closable&gt;Removable Tag&lt;/calcite-chip&gt;
+&lt;calcite-chip appearance="outline" kind="brand"&gt;Outline&lt;/calcite-chip&gt;</div>
+    </div>
+
+    <!-- Notice -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Notice (Inline Message)</span>
+          <span class="example-when">&mdash; persistent info/warning embedded in page flow</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="width:100%;">
+        <calcite-notice open icon="information" kind="info" width="full">
+          <div slot="title">Data Note</div>
+          <div slot="message">Fire counts include only residential structure fires reported to NFIRS.</div>
+        </calcite-notice>
+        <calcite-notice open icon="exclamation-mark-triangle" kind="warning" width="full">
+          <div slot="title">Coverage Gap</div>
+          <div slot="message">23 counties in this region have no assigned chapter.</div>
+        </calcite-notice>
+      </div>
+      <div class="example-code">&lt;calcite-notice open icon="information" kind="info" width="full"&gt;
+  &lt;div slot="title"&gt;Data Note&lt;/div&gt;
+  &lt;div slot="message"&gt;Fire counts include only residential structure fires.&lt;/div&gt;
+&lt;/calcite-notice&gt;
+
+&lt;!-- Unlike alerts (floating), notices sit inline in the page flow --&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 05: FORM CONTROLS                                            -->
+  <!-- ============================================================ -->
+  <div class="section" id="forms">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <h2>Form Controls</h2>
+    </div>
+    <p class="section-desc">Inputs, selects, date pickers, sliders, switches, and more. Every control auto-validates and supports assistive labels.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Filter panels, data entry forms, search bars, date range pickers, capacity thresholds, toggle visibility of map layers.
+    </div>
+
+    <!-- Text & Search Inputs -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Text Inputs</span>
+          <span class="example-when">&mdash; text, search, number, password</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:400px;">
+        <calcite-label>
+          Shelter Name
+          <calcite-input placeholder="Search shelters..."></calcite-input>
+        </calcite-label>
+        <calcite-label>
+          Search
+          <calcite-input type="search" placeholder="Find by keyword..." icon="search"></calcite-input>
+        </calcite-label>
+        <calcite-label>
+          Capacity
+          <calcite-input type="number" placeholder="0" min="0" max="5000" suffix-text="people"></calcite-input>
+        </calcite-label>
+      </div>
+      <div class="example-code">&lt;calcite-label&gt;
+  Shelter Name
+  &lt;calcite-input placeholder="Search shelters..."&gt;&lt;/calcite-input&gt;
+&lt;/calcite-label&gt;
+
+&lt;calcite-label&gt;
+  Search
+  &lt;calcite-input type="search" placeholder="Find..." icon="search"&gt;&lt;/calcite-input&gt;
+&lt;/calcite-label&gt;
+
+&lt;calcite-label&gt;
+  Capacity
+  &lt;calcite-input type="number" min="0" max="5000" suffix-text="people"&gt;&lt;/calcite-input&gt;
+&lt;/calcite-label&gt;</div>
+    </div>
+
+    <!-- Select & Date Picker -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Select &amp; Date Picker</span>
+          <span class="example-when">&mdash; dropdowns, date ranges</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:400px;">
+        <calcite-label>
+          Region
+          <calcite-select>
+            <calcite-option value="">All Regions</calcite-option>
+            <calcite-option>Northeast</calcite-option>
+            <calcite-option>Southeast</calcite-option>
+            <calcite-option>Midwest</calcite-option>
+            <calcite-option>West</calcite-option>
+          </calcite-select>
+        </calcite-label>
+        <calcite-label>
+          Date Range
+          <calcite-input-date-picker layout="horizontal" range></calcite-input-date-picker>
+        </calcite-label>
+      </div>
+      <div class="example-code">&lt;calcite-label&gt;
+  Region
+  &lt;calcite-select&gt;
+    &lt;calcite-option value=""&gt;All Regions&lt;/calcite-option&gt;
+    &lt;calcite-option&gt;Northeast&lt;/calcite-option&gt;
+    &lt;calcite-option&gt;Southeast&lt;/calcite-option&gt;
+  &lt;/calcite-select&gt;
+&lt;/calcite-label&gt;
+
+&lt;calcite-label&gt;
+  Date Range
+  &lt;calcite-input-date-picker layout="horizontal" range&gt;&lt;/calcite-input-date-picker&gt;
+&lt;/calcite-label&gt;</div>
+    </div>
+
+    <!-- Slider & Switch -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Slider, Switch &amp; Combobox</span>
+          <span class="example-when">&mdash; ranges, toggles, multi-select</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:400px;">
+        <calcite-label>
+          Capacity Threshold
+          <calcite-slider min="0" max="100" value="75" label-handles label-ticks ticks="25" suffix="%"></calcite-slider>
+        </calcite-label>
+        <calcite-label layout="inline">
+          <calcite-switch></calcite-switch>
+          Show closed shelters
+        </calcite-label>
+        <calcite-label layout="inline">
+          <calcite-switch checked></calcite-switch>
+          Auto-refresh data
+        </calcite-label>
+        <calcite-label>
+          Filter Counties
+          <calcite-combobox placeholder="Select counties..." selection-mode="multiple">
+            <calcite-combobox-item value="hillsborough" text-label="Hillsborough"></calcite-combobox-item>
+            <calcite-combobox-item value="pinellas" text-label="Pinellas"></calcite-combobox-item>
+            <calcite-combobox-item value="manatee" text-label="Manatee"></calcite-combobox-item>
+            <calcite-combobox-item value="sarasota" text-label="Sarasota"></calcite-combobox-item>
+          </calcite-combobox>
+        </calcite-label>
+      </div>
+      <div class="example-code">&lt;calcite-label&gt;
+  Capacity Threshold
+  &lt;calcite-slider min="0" max="100" value="75"
+    label-handles label-ticks ticks="25" suffix="%"&gt;
+  &lt;/calcite-slider&gt;
+&lt;/calcite-label&gt;
+
+&lt;calcite-label layout="inline"&gt;
+  &lt;calcite-switch checked&gt;&lt;/calcite-switch&gt;
+  Auto-refresh data
+&lt;/calcite-label&gt;
+
+&lt;calcite-label&gt;
+  Filter Counties
+  &lt;calcite-combobox placeholder="Select counties..." selection-mode="multiple"&gt;
+    &lt;calcite-combobox-item value="hillsborough" text-label="Hillsborough"&gt;&lt;/calcite-combobox-item&gt;
+    &lt;calcite-combobox-item value="pinellas" text-label="Pinellas"&gt;&lt;/calcite-combobox-item&gt;
+  &lt;/calcite-combobox&gt;
+&lt;/calcite-label&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 06: CARDS & LISTS                                            -->
+  <!-- ============================================================ -->
+  <div class="section" id="cards">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <h2>Cards &amp; Lists</h2>
+    </div>
+    <p class="section-desc">Structured content blocks for displaying records, search results, and feature details. Cards are standalone; lists are scrollable collections.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Displaying shelter records, feature layer query results, search results, layer toggles in a side panel.
+    </div>
+
+    <!-- Cards -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Cards</span>
+          <span class="example-when">&mdash; content blocks with actions</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-card label="Shelter A" style="max-width:320px;">
+          <span slot="heading">Hillsborough High School</span>
+          <span slot="description">250 of 300 capacity &bull; Open since Jan 15</span>
+          <calcite-chip slot="footer-start" kind="success" scale="s" icon="check-circle">Open</calcite-chip>
+          <calcite-button slot="footer-end" kind="neutral" appearance="outline" scale="s" icon-start="information">Details</calcite-button>
+        </calcite-card>
+        <calcite-card label="Shelter B" style="max-width:320px;">
+          <span slot="heading">Tampa Convention Center</span>
+          <span slot="description">480 of 500 capacity &bull; Open since Jan 15</span>
+          <calcite-chip slot="footer-start" kind="danger" scale="s" icon="exclamation-mark-circle">96% Full</calcite-chip>
+          <calcite-button slot="footer-end" kind="neutral" appearance="outline" scale="s" icon-start="information">Details</calcite-button>
+        </calcite-card>
+      </div>
+      <div class="example-code">&lt;calcite-card label="Shelter A"&gt;
+  &lt;span slot="heading"&gt;Hillsborough High School&lt;/span&gt;
+  &lt;span slot="description"&gt;250 of 300 capacity&lt;/span&gt;
+  &lt;calcite-chip slot="footer-start" kind="success" scale="s"
+    icon="check-circle"&gt;Open&lt;/calcite-chip&gt;
+  &lt;calcite-button slot="footer-end" kind="neutral" appearance="outline"
+    scale="s" icon-start="information"&gt;Details&lt;/calcite-button&gt;
+&lt;/calcite-card&gt;</div>
+    </div>
+
+    <!-- List -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">List with Actions</span>
+          <span class="example-when">&mdash; scrollable feature list, layer toggles</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:420px;width:100%;">
+        <calcite-list selection-mode="single" selection-appearance="border">
+          <calcite-list-item label="Hillsborough High School" description="250/300 &bull; Open" value="shelter-1">
+            <calcite-action slot="actions-end" icon="information" text="Info"></calcite-action>
+            <calcite-chip slot="content-end" kind="success" scale="s">Open</calcite-chip>
+          </calcite-list-item>
+          <calcite-list-item label="Tampa Convention Center" description="480/500 &bull; Near Capacity" value="shelter-2">
+            <calcite-action slot="actions-end" icon="information" text="Info"></calcite-action>
+            <calcite-chip slot="content-end" kind="danger" scale="s">96%</calcite-chip>
+          </calcite-list-item>
+          <calcite-list-item label="Gaither High School" description="120/400 &bull; Open" value="shelter-3">
+            <calcite-action slot="actions-end" icon="information" text="Info"></calcite-action>
+            <calcite-chip slot="content-end" kind="success" scale="s">Open</calcite-chip>
+          </calcite-list-item>
+          <calcite-list-item label="Westshore Community Center" description="Closed" value="shelter-4" disabled>
+            <calcite-action slot="actions-end" icon="information" text="Info"></calcite-action>
+            <calcite-chip slot="content-end" kind="neutral" scale="s">Closed</calcite-chip>
+          </calcite-list-item>
+        </calcite-list>
+      </div>
+      <div class="example-code">&lt;calcite-list selection-mode="single" selection-appearance="border"&gt;
+  &lt;calcite-list-item
+    label="Hillsborough High School"
+    description="250/300 &bull; Open"
+    value="shelter-1"&gt;
+    &lt;calcite-action slot="actions-end" icon="information" text="Info"&gt;&lt;/calcite-action&gt;
+    &lt;calcite-chip slot="content-end" kind="success" scale="s"&gt;Open&lt;/calcite-chip&gt;
+  &lt;/calcite-list-item&gt;
+  &lt;!-- more items... --&gt;
+&lt;/calcite-list&gt;
+
+&lt;!-- selection-mode: none | single | multiple --&gt;
+&lt;!-- Listen: list.addEventListener('calciteListChange', ...) --&gt;</div>
+    </div>
+
+    <!-- Table -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Calcite Table</span>
+          <span class="example-when">&mdash; structured data display</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="width:100%;">
+        <calcite-table caption="Shelter Status Summary" striped>
+          <calcite-table-row slot="table-header">
+            <calcite-table-header heading="Shelter"></calcite-table-header>
+            <calcite-table-header heading="Capacity"></calcite-table-header>
+            <calcite-table-header heading="Occupancy"></calcite-table-header>
+            <calcite-table-header heading="Status"></calcite-table-header>
+          </calcite-table-row>
+          <calcite-table-row>
+            <calcite-table-cell>Hillsborough HS</calcite-table-cell>
+            <calcite-table-cell>300</calcite-table-cell>
+            <calcite-table-cell>250</calcite-table-cell>
+            <calcite-table-cell><calcite-chip kind="success" scale="s">Open</calcite-chip></calcite-table-cell>
+          </calcite-table-row>
+          <calcite-table-row>
+            <calcite-table-cell>Tampa Conv. Center</calcite-table-cell>
+            <calcite-table-cell>500</calcite-table-cell>
+            <calcite-table-cell>480</calcite-table-cell>
+            <calcite-table-cell><calcite-chip kind="danger" scale="s">96% Full</calcite-chip></calcite-table-cell>
+          </calcite-table-row>
+          <calcite-table-row>
+            <calcite-table-cell>Gaither HS</calcite-table-cell>
+            <calcite-table-cell>400</calcite-table-cell>
+            <calcite-table-cell>120</calcite-table-cell>
+            <calcite-table-cell><calcite-chip kind="success" scale="s">Open</calcite-chip></calcite-table-cell>
+          </calcite-table-row>
+        </calcite-table>
+      </div>
+      <div class="example-code">&lt;calcite-table caption="Shelter Status Summary" striped&gt;
+  &lt;calcite-table-row slot="table-header"&gt;
+    &lt;calcite-table-header heading="Shelter"&gt;&lt;/calcite-table-header&gt;
+    &lt;calcite-table-header heading="Capacity"&gt;&lt;/calcite-table-header&gt;
+    &lt;calcite-table-header heading="Status"&gt;&lt;/calcite-table-header&gt;
+  &lt;/calcite-table-row&gt;
+  &lt;calcite-table-row&gt;
+    &lt;calcite-table-cell&gt;Hillsborough HS&lt;/calcite-table-cell&gt;
+    &lt;calcite-table-cell&gt;300&lt;/calcite-table-cell&gt;
+    &lt;calcite-table-cell&gt;
+      &lt;calcite-chip kind="success" scale="s"&gt;Open&lt;/calcite-chip&gt;
+    &lt;/calcite-table-cell&gt;
+  &lt;/calcite-table-row&gt;
+&lt;/calcite-table&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 07: NAVIGATION & PANELS                                      -->
+  <!-- ============================================================ -->
+  <div class="section" id="nav">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <h2>Navigation &amp; Panels</h2>
+    </div>
+    <p class="section-desc">App-level layout containers: navigation bars, collapsible panels, accordion sections, and modals. These are the skeleton of any Calcite app.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Building full app layouts with headers, side panels, layer controls, and detail popups. The <code>calcite-shell</code> pattern is the foundation of every Calcite app.
+    </div>
+
+    <!-- Panel -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Panel with Actions</span>
+          <span class="example-when">&mdash; collapsible side panel content</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:360px;width:100%;">
+        <calcite-panel heading="Shelter Filters" description="Narrow your results" closable>
+          <calcite-action slot="header-actions-end" icon="reset" text="Reset"></calcite-action>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:12px;">
+            <calcite-label>
+              Region
+              <calcite-select>
+                <calcite-option>All Regions</calcite-option>
+                <calcite-option>Southeast</calcite-option>
+              </calcite-select>
+            </calcite-label>
+            <calcite-label>
+              Status
+              <calcite-select>
+                <calcite-option>All</calcite-option>
+                <calcite-option>Open</calcite-option>
+                <calcite-option>Closed</calcite-option>
+              </calcite-select>
+            </calcite-label>
+            <calcite-button width="full" kind="brand">Apply Filters</calcite-button>
+          </div>
+        </calcite-panel>
+      </div>
+      <div class="example-code">&lt;calcite-panel heading="Shelter Filters" description="Narrow your results" closable&gt;
+  &lt;calcite-action slot="header-actions-end" icon="reset" text="Reset"&gt;&lt;/calcite-action&gt;
+  &lt;div style="padding:12px;"&gt;
+    &lt;calcite-label&gt;
+      Region
+      &lt;calcite-select&gt;
+        &lt;calcite-option&gt;All Regions&lt;/calcite-option&gt;
+        &lt;calcite-option&gt;Southeast&lt;/calcite-option&gt;
+      &lt;/calcite-select&gt;
+    &lt;/calcite-label&gt;
+    &lt;calcite-button width="full" kind="brand"&gt;Apply Filters&lt;/calcite-button&gt;
+  &lt;/div&gt;
+&lt;/calcite-panel&gt;</div>
+    </div>
+
+    <!-- Accordion -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Accordion</span>
+          <span class="example-when">&mdash; collapsible sections, FAQs, layer groups</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:420px;width:100%;">
+        <calcite-accordion>
+          <calcite-accordion-item heading="Base Layers" description="Background maps" icon-start="basemap" expanded>
+            <calcite-label layout="inline"><calcite-switch checked></calcite-switch> Streets</calcite-label>
+            <calcite-label layout="inline"><calcite-switch></calcite-switch> Satellite</calcite-label>
+            <calcite-label layout="inline"><calcite-switch></calcite-switch> Topographic</calcite-label>
+          </calcite-accordion-item>
+          <calcite-accordion-item heading="Operational Layers" description="Shelter and response data" icon-start="layers">
+            <calcite-label layout="inline"><calcite-switch checked></calcite-switch> Shelters</calcite-label>
+            <calcite-label layout="inline"><calcite-switch checked></calcite-switch> Evacuation Routes</calcite-label>
+            <calcite-label layout="inline"><calcite-switch></calcite-switch> Damage Assessments</calcite-label>
+          </calcite-accordion-item>
+          <calcite-accordion-item heading="Hazard Layers" description="Weather and risk" icon-start="exclamation-mark-triangle">
+            <calcite-label layout="inline"><calcite-switch></calcite-switch> Flood Zones</calcite-label>
+            <calcite-label layout="inline"><calcite-switch></calcite-switch> Fire Perimeters</calcite-label>
+          </calcite-accordion-item>
+        </calcite-accordion>
+      </div>
+      <div class="example-code">&lt;calcite-accordion&gt;
+  &lt;calcite-accordion-item heading="Base Layers"
+    description="Background maps" icon-start="basemap" expanded&gt;
+    &lt;calcite-label layout="inline"&gt;
+      &lt;calcite-switch checked&gt;&lt;/calcite-switch&gt; Streets
+    &lt;/calcite-label&gt;
+    &lt;!-- more items... --&gt;
+  &lt;/calcite-accordion-item&gt;
+  &lt;calcite-accordion-item heading="Operational Layers" ...&gt;
+    &lt;!-- ... --&gt;
+  &lt;/calcite-accordion-item&gt;
+&lt;/calcite-accordion&gt;</div>
+    </div>
+
+    <!-- Modal -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Modal Dialog</span>
+          <span class="example-when">&mdash; detail views, confirmations, forms</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag medium">Medium</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <calcite-button id="modal-trigger" kind="brand" icon-start="popup">Open Modal</calcite-button>
+        <calcite-modal id="demo-modal" aria-labelledby="modal-title" width-scale="s">
+          <div slot="header" id="modal-title">Shelter Details</div>
+          <div slot="content">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <calcite-notice open icon="pin" kind="brand">
+                <div slot="title">Hillsborough High School</div>
+                <div slot="message">5000 N Central Ave, Tampa, FL 33603</div>
+              </calcite-notice>
+              <div style="display:flex;gap:24px;">
+                <div>
+                  <div style="font-size:12px;color:#737373;text-transform:uppercase;">Capacity</div>
+                  <div style="font-family:var(--font-data);font-size:24px;font-weight:600;">300</div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:#737373;text-transform:uppercase;">Current</div>
+                  <div style="font-family:var(--font-data);font-size:24px;font-weight:600;color:#ED1B2E;">250</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <calcite-button slot="primary" width="full" kind="brand" id="modal-close">Close</calcite-button>
+        </calcite-modal>
+      </div>
+      <div class="example-code">&lt;calcite-button id="modal-trigger"&gt;Open Modal&lt;/calcite-button&gt;
+
+&lt;calcite-modal id="demo-modal" width-scale="s"&gt;
+  &lt;div slot="header"&gt;Shelter Details&lt;/div&gt;
+  &lt;div slot="content"&gt;
+    &lt;!-- any content here --&gt;
+  &lt;/div&gt;
+  &lt;calcite-button slot="primary" width="full"&gt;Close&lt;/calcite-button&gt;
+&lt;/calcite-modal&gt;
+
+&lt;script&gt;
+  document.getElementById('modal-trigger').addEventListener('click', () =&gt; {
+    document.getElementById('demo-modal').open = true;
+  });
+&lt;/script&gt;</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Tabs</span>
+          <span class="example-when">&mdash; multi-view navigation within a panel</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="max-width:480px;width:100%;">
+        <calcite-tabs>
+          <calcite-tab-nav slot="title-group">
+            <calcite-tab-title selected icon-start="dashboard">Dashboard</calcite-tab-title>
+            <calcite-tab-title icon-start="table">Data</calcite-tab-title>
+            <calcite-tab-title icon-start="legend">Legend</calcite-tab-title>
+          </calcite-tab-nav>
+          <calcite-tab selected>
+            <div style="padding:16px;font-size:14px;color:#4a4a4a;">
+              Dashboard content &mdash; KPI cards, charts, and summary statistics would go here.
+            </div>
+          </calcite-tab>
+          <calcite-tab>
+            <div style="padding:16px;font-size:14px;color:#4a4a4a;">
+              Data table content &mdash; sortable, filterable feature list.
+            </div>
+          </calcite-tab>
+          <calcite-tab>
+            <div style="padding:16px;font-size:14px;color:#4a4a4a;">
+              Map legend &mdash; symbology and layer descriptions.
+            </div>
+          </calcite-tab>
+        </calcite-tabs>
+      </div>
+      <div class="example-code">&lt;calcite-tabs&gt;
+  &lt;calcite-tab-nav slot="title-group"&gt;
+    &lt;calcite-tab-title selected icon-start="dashboard"&gt;Dashboard&lt;/calcite-tab-title&gt;
+    &lt;calcite-tab-title icon-start="table"&gt;Data&lt;/calcite-tab-title&gt;
+    &lt;calcite-tab-title icon-start="legend"&gt;Legend&lt;/calcite-tab-title&gt;
+  &lt;/calcite-tab-nav&gt;
+  &lt;calcite-tab selected&gt;Dashboard content...&lt;/calcite-tab&gt;
+  &lt;calcite-tab&gt;Data table content...&lt;/calcite-tab&gt;
+  &lt;calcite-tab&gt;Legend content...&lt;/calcite-tab&gt;
+&lt;/calcite-tabs&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 08: THEMING                                                  -->
+  <!-- ============================================================ -->
+  <div class="section" id="theming">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <h2>Theming</h2>
+    </div>
+    <p class="section-desc">Switch between light and dark mode with a CSS class. Override the brand color with one CSS variable to match any org identity.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Matching app to Red Cross branding (swap Esri blue for ARC red), building dark-mode ops dashboards, creating white-label tools for partners.
+    </div>
+
+    <!-- Theme toggle demo -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Light / Dark Mode</span>
+          <span class="example-when">&mdash; one CSS class toggles everything</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col">
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <calcite-button id="theme-light" kind="brand" appearance="outline" scale="s">Light Mode</calcite-button>
+          <calcite-button id="theme-dark" kind="neutral" scale="s">Dark Mode</calcite-button>
+        </div>
+        <div id="theme-demo" class="calcite-mode-light" style="padding:24px;border-radius:4px;border:1px solid #e5e5e5;width:100%;max-width:420px;">
+          <calcite-panel heading="Theme Preview">
+            <div style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+              <calcite-button kind="brand" width="full">Brand Button</calcite-button>
+              <calcite-notice open icon="information" kind="info">
+                <div slot="message">This panel respects the current theme.</div>
+              </calcite-notice>
+              <calcite-label layout="inline">
+                <calcite-switch checked></calcite-switch>
+                A toggle in context
+              </calcite-label>
+            </div>
+          </calcite-panel>
+        </div>
+      </div>
+      <div class="example-code">&lt;!-- Light theme (default) --&gt;
+&lt;div class="calcite-mode-light"&gt;
+  &lt;calcite-button kind="brand"&gt;I'm light&lt;/calcite-button&gt;
+&lt;/div&gt;
+
+&lt;!-- Dark theme — just change the class --&gt;
+&lt;div class="calcite-mode-dark"&gt;
+  &lt;calcite-button kind="brand"&gt;I'm dark&lt;/calcite-button&gt;
+&lt;/div&gt;
+
+&lt;!-- Or set it on the whole page: --&gt;
+&lt;body class="calcite-mode-dark"&gt;</div>
+    </div>
+
+    <!-- Custom brand color -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Custom Brand Color (Red Cross Red)</span>
+          <span class="example-when">&mdash; swap Esri blue for any brand</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag simple">Simple</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo">
+        <div style="--calcite-color-brand:#ED1B2E;--calcite-color-brand-hover:#C41225;--calcite-color-brand-press:#A00E1E;display:flex;gap:12px;flex-wrap:wrap;">
+          <calcite-button kind="brand">Red Cross Action</calcite-button>
+          <calcite-button kind="brand" appearance="outline">Outline</calcite-button>
+          <calcite-chip kind="brand">ARC Branded</calcite-chip>
+          <calcite-switch checked></calcite-switch>
+        </div>
+      </div>
+      <div class="example-code">&lt;style&gt;
+  :root {
+    --calcite-color-brand: #ED1B2E;        /* Red Cross red */
+    --calcite-color-brand-hover: #C41225;  /* Darker on hover */
+    --calcite-color-brand-press: #A00E1E;  /* Pressed state */
+  }
+&lt;/style&gt;
+
+&lt;!-- All "kind=brand" components now use Red Cross red --&gt;
+&lt;calcite-button kind="brand"&gt;Red Cross Action&lt;/calcite-button&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 09: FULL APP LAYOUT                                          -->
+  <!-- ============================================================ -->
+  <div class="section" id="fullapp">
+    <div class="section-header">
+      <span class="section-number">09</span>
+      <h2>Full App Layout</h2>
+    </div>
+    <p class="section-desc">Putting it all together: <code>calcite-shell</code> gives you a header, side panel with action bar, and main content area. This is the skeleton of every Calcite app.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box">
+      <strong>WHEN:</strong> Building a full standalone web app &mdash; shelter dashboard, field operations tool, or any map-centric app with controls. This pattern replaces hundreds of lines of custom CSS layout.
+    </div>
+
+    <!-- Full shell demo -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">Calcite Shell &mdash; Complete App Skeleton</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag complex">Complex</span>
+          <button class="toggle-code" onclick="toggleCode(this)">View Code</button>
+        </div>
+      </div>
+      <div class="example-demo col" style="padding:0;">
+        <div style="height:520px;width:100%;border:1px solid var(--arc-gray-100);overflow:hidden;--calcite-color-brand:#ED1B2E;--calcite-color-brand-hover:#C41225;--calcite-color-brand-press:#A00E1E;">
+          <calcite-shell>
+            <!-- Navigation header -->
+            <calcite-navigation slot="header">
+              <calcite-navigation-logo slot="logo"
+                heading="Shelter Operations"
+                description="Tampa Bay Region"
+                thumbnail="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='12' y='4' width='8' height='24' fill='%23ED1B2E'/%3E%3Crect x='4' y='12' width='24' height='8' fill='%23ED1B2E'/%3E%3C/svg%3E">
+              </calcite-navigation-logo>
+              <calcite-action-pad slot="content-end" layout="horizontal" expand-disabled>
+                <calcite-action icon="user" text="Account"></calcite-action>
+                <calcite-action icon="gear" text="Settings"></calcite-action>
+              </calcite-action-pad>
+            </calcite-navigation>
+
+            <!-- Left panel with action bar -->
+            <calcite-shell-panel slot="panel-start" display-mode="float" width-scale="m">
+              <calcite-action-bar slot="action-bar">
+                <calcite-action icon="list" text="Shelters" data-panel="shelters" class="shell-action active"></calcite-action>
+                <calcite-action icon="filter" text="Filters" data-panel="filters" class="shell-action"></calcite-action>
+                <calcite-action icon="legend" text="Legend" data-panel="legend" class="shell-action"></calcite-action>
+              </calcite-action-bar>
+
+              <!-- Shelter list panel -->
+              <calcite-panel heading="Shelters" description="4 locations" id="panel-shelters">
+                <calcite-action slot="header-actions-end" icon="sort-ascending-arrow" text="Sort"></calcite-action>
+                <calcite-list>
+                  <calcite-list-item label="Hillsborough HS" description="250/300 capacity">
+                    <calcite-chip slot="content-end" kind="success" scale="s">Open</calcite-chip>
+                  </calcite-list-item>
+                  <calcite-list-item label="Tampa Conv. Center" description="480/500 capacity">
+                    <calcite-chip slot="content-end" kind="danger" scale="s">96%</calcite-chip>
+                  </calcite-list-item>
+                  <calcite-list-item label="Gaither HS" description="120/400 capacity">
+                    <calcite-chip slot="content-end" kind="success" scale="s">Open</calcite-chip>
+                  </calcite-list-item>
+                  <calcite-list-item label="Westshore CC" description="Closed" disabled>
+                    <calcite-chip slot="content-end" kind="neutral" scale="s">Closed</calcite-chip>
+                  </calcite-list-item>
+                </calcite-list>
+              </calcite-panel>
+
+              <!-- Filter panel (hidden by default) -->
+              <calcite-panel heading="Filters" id="panel-filters" style="display:none;">
+                <div style="padding:12px;display:flex;flex-direction:column;gap:12px;">
+                  <calcite-label>
+                    Status
+                    <calcite-select>
+                      <calcite-option>All</calcite-option>
+                      <calcite-option>Open</calcite-option>
+                      <calcite-option>Closed</calcite-option>
+                    </calcite-select>
+                  </calcite-label>
+                  <calcite-label>
+                    Min Capacity
+                    <calcite-slider min="0" max="100" value="0" suffix="%" label-handles></calcite-slider>
+                  </calcite-label>
+                  <calcite-button width="full" kind="brand">Apply</calcite-button>
+                </div>
+              </calcite-panel>
+
+              <!-- Legend panel (hidden by default) -->
+              <calcite-panel heading="Legend" id="panel-legend" style="display:none;">
+                <div style="padding:12px;font-size:14px;color:#4a4a4a;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2d5a27;"></span> Open
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ED1B2E;"></span> Near Capacity
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#a3a3a3;"></span> Closed
+                  </div>
+                </div>
+              </calcite-panel>
+            </calcite-shell-panel>
+
+            <!-- Main content (map placeholder) -->
+            <div style="height:100%;width:100%;background:linear-gradient(135deg,#e8f0e8 0%,#d4e4d4 50%,#c8dcc8 100%);display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="text-align:center;color:#4a4a4a;">
+                <svg viewBox="0 0 64 64" width="64" height="64" style="opacity:0.4;margin-bottom:12px;">
+                  <circle cx="32" cy="28" r="8" fill="none" stroke="#4a4a4a" stroke-width="2"/>
+                  <path d="M32 36 L32 52" stroke="#4a4a4a" stroke-width="2" fill="none"/>
+                  <path d="M20 20 Q32 4 44 20 Q44 32 32 44 Q20 32 20 20Z" fill="none" stroke="#4a4a4a" stroke-width="2"/>
+                </svg>
+                <div style="font-family:var(--font-body);font-size:14px;">Map View</div>
+                <div style="font-family:var(--font-data);font-size:12px;color:#a3a3a3;margin-top:4px;">Replace with &lt;div id="viewDiv"&gt; + ArcGIS Maps SDK</div>
+              </div>
+              <!-- Floating FAB button -->
+              <calcite-fab icon="plus" text="Add Shelter" style="position:absolute;bottom:24px;right:24px;" kind="brand"></calcite-fab>
+            </div>
+
+          </calcite-shell>
+        </div>
+      </div>
+      <div class="example-code">&lt;calcite-shell&gt;
+  &lt;!-- Header --&gt;
+  &lt;calcite-navigation slot="header"&gt;
+    &lt;calcite-navigation-logo slot="logo"
+      heading="Shelter Operations"
+      description="Tampa Bay Region"&gt;
+    &lt;/calcite-navigation-logo&gt;
+  &lt;/calcite-navigation&gt;
+
+  &lt;!-- Left panel with action bar --&gt;
+  &lt;calcite-shell-panel slot="panel-start" display-mode="float"&gt;
+    &lt;calcite-action-bar slot="action-bar"&gt;
+      &lt;calcite-action icon="list" text="Shelters"&gt;&lt;/calcite-action&gt;
+      &lt;calcite-action icon="filter" text="Filters"&gt;&lt;/calcite-action&gt;
+      &lt;calcite-action icon="legend" text="Legend"&gt;&lt;/calcite-action&gt;
+    &lt;/calcite-action-bar&gt;
+
+    &lt;calcite-panel heading="Shelters"&gt;
+      &lt;calcite-list&gt;
+        &lt;calcite-list-item label="Hillsborough HS" description="250/300"&gt;
+          &lt;calcite-chip slot="content-end" kind="success" scale="s"&gt;Open&lt;/calcite-chip&gt;
+        &lt;/calcite-list-item&gt;
+        &lt;!-- more items... --&gt;
+      &lt;/calcite-list&gt;
+    &lt;/calcite-panel&gt;
+  &lt;/calcite-shell-panel&gt;
+
+  &lt;!-- Main content (your map goes here) --&gt;
+  &lt;div id="viewDiv" style="height:100%;width:100%;"&gt;&lt;/div&gt;
+
+  &lt;!-- Optional: floating action button --&gt;
+  &lt;calcite-fab icon="plus" text="Add Shelter"
+    style="position:absolute;bottom:24px;right:24px;"&gt;
+  &lt;/calcite-fab&gt;
+&lt;/calcite-shell&gt;
+
+&lt;!-- The shell handles: --&gt;
+&lt;!-- - Full viewport layout --&gt;
+&lt;!-- - Collapsible side panel --&gt;
+&lt;!-- - Responsive mobile behavior --&gt;
+&lt;!-- - Dark/light theming --&gt;</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ================================================================ -->
+<!-- FOOTER                                                           -->
+<!-- ================================================================ -->
+<footer>
+  <div class="container">
+    <p class="footer-text">
+      Calcite Design System Showcase &mdash; Built with
+      <a href="https://developers.arcgis.com/calcite-design-system/" style="color:var(--arc-info);">Calcite Components v2.13.2</a> &bull;
+      <a href="https://developers.arcgis.com/calcite-design-system/icons/" style="color:var(--arc-info);">Icon Reference</a> &bull;
+      <a href="https://developers.arcgis.com/calcite-design-system/foundations/colors/" style="color:var(--arc-info);">Theming Guide</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT                                                       -->
+<!-- ================================================================ -->
+<script>
+  // Toggle code visibility
+  function toggleCode(btn) {
+    const codeBlock = btn.closest('.example').querySelector('.example-code');
+    const isOpen = codeBlock.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.textContent = isOpen ? 'Hide Code' : 'View Code';
+  }
+
+  // Alert trigger
+  document.getElementById('alert-trigger').addEventListener('click', () => {
+    ['alert-success', 'alert-warning', 'alert-danger', 'alert-info'].forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).open = true;
+      }, i * 400);
+    });
+  });
+
+  // Modal trigger
+  document.getElementById('modal-trigger').addEventListener('click', () => {
+    document.getElementById('demo-modal').open = true;
+  });
+  document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('demo-modal').open = false;
+  });
+
+  // Theme toggle
+  document.getElementById('theme-light').addEventListener('click', () => {
+    document.getElementById('theme-demo').className = 'calcite-mode-light';
+    document.getElementById('theme-demo').style.background = '#fff';
+    document.getElementById('theme-demo').style.borderColor = '#e5e5e5';
+  });
+  document.getElementById('theme-dark').addEventListener('click', () => {
+    document.getElementById('theme-demo').className = 'calcite-mode-dark';
+    document.getElementById('theme-demo').style.background = '#2b2b2b';
+    document.getElementById('theme-demo').style.borderColor = '#444';
+  });
+
+  // Shell action bar panel switching
+  document.querySelectorAll('.shell-action').forEach(action => {
+    action.addEventListener('click', () => {
+      const panelId = action.dataset.panel;
+      document.querySelectorAll('.shell-action').forEach(a => a.classList.remove('active'));
+      action.classList.add('active');
+      ['shelters', 'filters', 'legend'].forEach(id => {
+        const panel = document.getElementById('panel-' + id);
+        if (panel) panel.style.display = id === panelId ? '' : 'none';
+      });
+    });
+  });
+
+  // Sticky nav active state on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navPills = document.querySelectorAll('.nav-pill');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const top = section.offsetTop - 120;
+      if (window.scrollY >= top) current = section.id;
+    });
+    navPills.forEach(pill => {
+      pill.classList.toggle('active', pill.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+
+</body>
+</html>
