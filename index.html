@@ -254,6 +254,7 @@
       <a href="#nav" class="nav-pill">Navigation</a>
       <a href="#theming" class="nav-pill">Theming</a>
       <a href="#fullapp" class="nav-pill">Full App</a>
+      <a href="#capstone" class="nav-pill">Live Dashboard</a>
     </div>
   </div>
 </nav>
@@ -263,7 +264,7 @@
   <!-- Stats -->
   <div class="stats-bar">
     <div class="stat">
-      <span class="stat-number red">9</span>
+      <span class="stat-number red">10</span>
       <span class="stat-label">Sections</span>
     </div>
     <div class="stat">
@@ -1354,6 +1355,77 @@
 &lt;!-- - Collapsible side panel --&gt;
 &lt;!-- - Responsive mobile behavior --&gt;
 &lt;!-- - Dark/light theming --&gt;</div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 10: CAPSTONE — LIVE FLARE DASHBOARD                          -->
+  <!-- ============================================================ -->
+  <div class="section" id="capstone">
+    <div class="section-header">
+      <span class="section-number">10</span>
+      <h2>The Real Thing</h2>
+    </div>
+    <p class="section-desc">Everything above &mdash; shell, navigation, panels, action bars, charts, tables, dark theme, custom branding &mdash; combined into a production dashboard powered by real CY2024 fire response data. One HTML file. 35KB. No build step.</p>
+    <div class="section-rule"></div>
+
+    <div class="when-box" style="border-left-color:var(--arc-red);">
+      <strong style="color:var(--arc-red);">THIS IS THE GOAL:</strong> A single-file Calcite app with 5 sidebar panels, 6 chart types, sortable tables, light/dark theming, and 103,400 real records. If you can build this, you can build anything with Calcite.
+    </div>
+
+    <!-- Component inventory -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px;">
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:12px;">
+        <div style="font-family:var(--font-data);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Layout</div>
+        <div style="font-size:14px;color:var(--arc-gray-700);">Shell, Navigation, Shell Panel, Action Bar, Panels, Tabs</div>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:12px;">
+        <div style="font-family:var(--font-data);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Data Display</div>
+        <div style="font-size:14px;color:var(--arc-gray-700);">Cards, Chips, Table (sortable), Notices, Tooltips</div>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:12px;">
+        <div style="font-family:var(--font-data);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Charts (Canvas)</div>
+        <div style="font-size:14px;color:var(--arc-gray-700);">Bar, Stacked Bar, Donut, Line, Scatter, Polar Area</div>
+      </div>
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:12px;">
+        <div style="font-family:var(--font-data);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Controls</div>
+        <div style="font-size:14px;color:var(--arc-gray-700);">Select, Switch (theme toggle), Action buttons, FAB</div>
+      </div>
+    </div>
+
+    <!-- Live iframe embed -->
+    <div class="example">
+      <div class="example-header">
+        <div>
+          <span class="example-title">FLARE Analytics &mdash; Live Dashboard</span>
+          <span class="example-when">&mdash; 103,400 fires &bull; 6 divisions &bull; CY2024</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="complexity-tag complex">Production</span>
+          <a href="https://calcite-demo.vercel.app" target="_blank" rel="noopener" style="font-family:var(--font-data);font-size:12px;padding:4px 12px;border:1px solid var(--arc-red);border-radius:3px;background:var(--arc-red);color:var(--arc-white);text-decoration:none;transition:all 0.15s;">Open Full Screen</a>
+        </div>
+      </div>
+      <div style="padding:0;position:relative;">
+        <iframe
+          src="https://calcite-demo.vercel.app"
+          style="width:100%;height:700px;border:none;display:block;"
+          title="FLARE Analytics Dashboard — Calcite Demo"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- What to explore -->
+    <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;margin-top:4px;">
+      <div style="font-family:var(--font-headline);font-size:16px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">Try these:</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;font-size:14px;color:var(--arc-gray-700);">
+        <div><strong style="color:var(--arc-black);">Toggle theme</strong> &mdash; Click the brightness icon (top right) to switch light/dark</div>
+        <div><strong style="color:var(--arc-black);">Switch panels</strong> &mdash; Click the 5 icons on the left action bar</div>
+        <div><strong style="color:var(--arc-black);">Sort the table</strong> &mdash; In "By State" panel, click any column header</div>
+        <div><strong style="color:var(--arc-black);">Filter by division</strong> &mdash; In "Trends" panel, use the dropdown</div>
+        <div><strong style="color:var(--arc-black);">Scroll the main area</strong> &mdash; 4 KPI cards, 6 charts in the center</div>
+        <div><strong style="color:var(--arc-black);">Inspect the code</strong> &mdash; Right-click &rarr; View Source. It's one HTML file.</div>
+      </div>
     </div>
   </div>
 
