@@ -355,73 +355,119 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- 01: WHEN TO USE CALCITE (& WHEN NOT TO)                      -->
+  <!-- 01: THE DECISION FRAMEWORK                                    -->
   <!-- ============================================================ -->
   <div class="section" id="what">
     <div class="section-header">
       <span class="section-number">01</span>
-      <h2>When to Use Calcite</h2>
+      <h2>The Decision Framework</h2>
     </div>
-    <p class="section-desc">Calcite isn't the only game in town. Esri has three UI libraries. Picking the right one depends on what you're building.</p>
+    <p class="section-desc">Before Calcite, the choice was simple: configure in AGOL or build from scratch. AI changes that equation. Here's when to use each approach.</p>
     <div class="section-rule"></div>
 
-    <!-- Use / Don't Use side by side -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
-      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;">
-        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-success);margin-bottom:12px;">Use Calcite when you're building:</div>
-        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:2;padding-left:20px;">
-          <li>A standalone HTML app that should look like an Esri product</li>
-          <li>A custom Experience Builder widget</li>
-          <li>A dashboard with map + filter panels + data tables</li>
-          <li>Any ArcGIS web tool that needs polished UI fast</li>
-          <li>A prototype or demo that needs to look professional immediately</li>
+    <!-- The old equation -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:var(--font-headline);font-size:16px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">The old equation</div>
+      <table class="decision-table">
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Skill Needed</th>
+            <th>Time</th>
+            <th>Flexibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AGOL Built-in</td>
+            <td>None</td>
+            <td style="font-family:var(--font-data);font-size:13px;">Minutes</td>
+            <td>Low &mdash; you get what the widgets give you</td>
+          </tr>
+          <tr>
+            <td>Experience Builder</td>
+            <td>Low-code + some Arcade</td>
+            <td style="font-family:var(--font-data);font-size:13px;">Hours</td>
+            <td>Medium &mdash; powerful but boxed in by the framework</td>
+          </tr>
+          <tr>
+            <td>Custom Web App</td>
+            <td>JavaScript, CSS, deployment</td>
+            <td style="font-family:var(--font-data);font-size:13px;">Days / Weeks</td>
+            <td>Unlimited</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:14px;color:var(--arc-gray-700);margin-top:12px;line-height:1.6;">
+        Custom apps were always the most powerful option, but the cost was prohibitive for most GIS people. So we lived in Experience Builder.
+      </p>
+    </div>
+
+    <!-- What AI changes -->
+    <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);border-left:3px solid var(--arc-red);padding:24px;margin-bottom:32px;">
+      <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:8px;">What AI changes</div>
+      <p style="font-size:16px;color:var(--arc-gray-700);line-height:1.7;">
+        AI collapses row 3. The FLARE dashboard at the bottom of this page &mdash; 5 panels, 6 chart types, sortable tables, dark mode, 103,400 real records &mdash; is <strong>one HTML file that took minutes, not weeks.</strong> The skill barrier is gone. The time barrier is gone. The only question left is: <em>does this use case need what AGOL or EB provides that a standalone file doesn't?</em>
+      </p>
+    </div>
+
+    <!-- Three-column decision framework -->
+    <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:16px;">The new decision framework</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:32px;">
+
+      <!-- AGOL -->
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Configure</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">Use AGOL Built-in</div>
+        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:1.9;padding-left:18px;">
+          <li>Non-technical people need to maintain it after you leave</li>
+          <li>It's a quick internal map or dashboard with standard widgets</li>
+          <li>You need Survey123 / Collector / Field Maps integration baked in</li>
+          <li>The org manages it through Portal (permissions, groups, sharing)</li>
         </ul>
       </div>
-      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:20px;">
-        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:12px;">You don't need Calcite for:</div>
-        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:2;padding-left:20px;">
-          <li>Python scripts (no UI)</li>
-          <li>ArcGIS Pro (desktop, not web)</li>
-          <li>ArcGIS Online's built-in widgets (already use Calcite internally)</li>
-          <li>A non-GIS web app with its own design system</li>
+
+      <!-- Experience Builder -->
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:4px;">Low-Code</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">Use Experience Builder</div>
+        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:1.9;padding-left:18px;">
+          <li>You need <strong>living Portal authentication</strong> (named users, org roles)</li>
+          <li>The app must be <strong>managed inside AGOL</strong> (IT controls it, not you)</li>
+          <li>You're embedding web maps that stakeholders edit themselves</li>
+          <li>You need EB's built-in data sources (feature layer queries with no code)</li>
+          <li>Someone non-technical will update content after deployment</li>
+        </ul>
+      </div>
+
+      <!-- Calcite + AI -->
+      <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;border-left:3px solid var(--arc-red);">
+        <div style="font-family:var(--font-data);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--arc-red);margin-bottom:4px;">Full Code + AI</div>
+        <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">Use Calcite + AI</div>
+        <ul style="font-size:14px;color:var(--arc-gray-700);line-height:1.9;padding-left:18px;">
+          <li>You need <strong>custom UI</strong> that EB widgets can't do</li>
+          <li>You want <strong>total control</strong> over layout, charts, interactions</li>
+          <li>You need to <strong>deploy anywhere</strong> (Vercel, GitHub Pages) &mdash; not tied to Portal</li>
+          <li>You're building a demo, prototype, or internal tool <strong>fast</strong></li>
+          <li>You want <strong>one file</strong> with no build step, no versioning headaches</li>
+          <li>The data is static JSON or a public feature layer (no auth needed)</li>
         </ul>
       </div>
     </div>
 
-    <!-- Three libraries table -->
-    <div style="font-family:var(--font-headline);font-size:16px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">The three Esri UI libraries</div>
-    <table class="decision-table">
-      <thead>
-        <tr>
-          <th>Library</th>
-          <th>What It Is</th>
-          <th>Use When</th>
-          <th>Code Looks Like</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Calcite Components</td>
-          <td>Web Components (custom HTML tags)</td>
-          <td>Standalone HTML apps, custom EB widgets, any ArcGIS-styled UI</td>
-          <td style="font-family:var(--font-data);font-size:13px;">&lt;calcite-button&gt;</td>
-        </tr>
-        <tr>
-          <td>Jimu UI</td>
-          <td>React components bundled in EB</td>
-          <td>Experience Builder widgets (primary choice inside EB)</td>
-          <td style="font-family:var(--font-data);font-size:13px;">&lt;Button&gt; from jimu-ui</td>
-        </tr>
-        <tr>
-          <td>ArcGIS Map Components</td>
-          <td>Web Components for maps/scenes</td>
-          <td>Embedding maps or 3D scenes as drop-in elements</td>
-          <td style="font-family:var(--font-data);font-size:13px;">&lt;arcgis-map&gt;</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- The honest assessment -->
+    <div style="background:var(--arc-white);border:1px solid var(--arc-gray-100);padding:24px;margin-bottom:24px;">
+      <div style="width:40px;height:3px;background:var(--arc-red);margin-bottom:12px;"></div>
+      <div style="font-family:var(--font-headline);font-size:18px;font-weight:700;color:var(--arc-black);margin-bottom:12px;">The honest assessment</div>
+      <p style="font-size:15px;color:var(--arc-gray-700);line-height:1.7;margin-bottom:12px;">
+        What Calcite adds is the <strong>last missing piece</strong>: your custom apps now look indistinguishable from official Esri products. Same buttons, same panels, same action bars. A colleague can't tell if they're looking at Map Viewer or your tool.
+      </p>
+      <p style="font-size:15px;color:var(--arc-gray-700);line-height:1.7;">
+        Experience Builder isn't going away &mdash; it's the right choice when the org owns the app and non-coders maintain it. But for everything you personally build? <strong>AI + Calcite is faster, more flexible, and produces better results than dragging widgets into EB.</strong>
+      </p>
+    </div>
 
-    <div class="when-box" style="margin-top:24px;">
+    <div class="when-box">
       <strong>This page focuses on Calcite Components</strong> &mdash; the one you'll reach for most often when building standalone web tools. Every example below is a live, interactive Calcite component you can click and test right here. Click "View Code" on any example to see the HTML.
     </div>
   </div>
