@@ -1,827 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calcite Design System — Power Showcase</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcite × Dragon — Component Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+Pro:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --arc-red: #ED1B2E;
+    --arc-black: #1a1a1a;
+    --arc-cream: #f7f5f2;
+    --arc-gray-900: #2d2d2d;
+    --arc-gray-700: #4a4a4a;
+    --arc-gray-500: #737373;
+    --arc-gray-300: #a3a3a3;
+    --arc-gray-100: #e5e5e5;
+    --arc-white: #ffffff;
+    --font-headline: 'Libre Baskerville', Georgia, serif;
+    --font-body: 'Source Sans Pro', 'Helvetica Neue', sans-serif;
+    --font-data: 'IBM Plex Mono', Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: var(--arc-cream); color: var(--arc-gray-900); line-height: 1.6; }
 
-  <!-- Calcite Components -->
-  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
-  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css">
+  header { background: var(--arc-white); border-bottom: 3px solid var(--arc-black); padding: 48px 0 40px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
-  <!-- ArcGIS Maps SDK -->
-  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
-  <script src="https://js.arcgis.com/4.32/"></script>
+  .brand-line { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .brand-line span { font-family: var(--font-data); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; color: var(--arc-red); }
 
-  <style>
-    html, body { margin: 0; padding: 0; height: 100%; font-family: "Avenir Next", sans-serif; }
+  h1 { font-family: var(--font-headline); font-size: 40px; font-weight: 700; color: var(--arc-black); line-height: 1.15; margin-bottom: 12px; }
+  .subtitle { font-size: 18px; color: var(--arc-gray-700); max-width: 640px; }
 
-    /* Red Cross branded overrides */
-    :root {
-      --calcite-color-brand: #ED1B2E;
-      --calcite-color-brand-hover: #C41225;
-      --calcite-color-brand-press: #A00E1E;
-    }
+  main { padding: 56px 0 80px; }
 
-    #viewDiv { height: 100%; width: 100%; }
+  .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .section-num { font-family: var(--font-data); font-size: 14px; color: var(--arc-red); font-weight: 500; }
+  .section-title { font-family: var(--font-headline); font-size: 24px; font-weight: 700; color: var(--arc-black); }
+  .section-desc { font-size: 16px; color: var(--arc-gray-700); max-width: 720px; margin-bottom: 12px; }
+  .red-rule { width: 40px; height: 3px; background: var(--arc-red); margin-bottom: 32px; }
 
-    /* Dashboard stat cards */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 12px;
-    }
-    .stat-card {
-      background: var(--calcite-color-foreground-1);
-      border: 1px solid var(--calcite-color-border-3);
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--calcite-color-brand);
-      line-height: 1.2;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: var(--calcite-color-text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 4px;
-    }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 24px; margin-bottom: 64px; }
 
-    /* Feature list styling */
-    .feature-meta {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      font-size: 12px;
-      color: var(--calcite-color-text-3);
-    }
+  .demo-card { background: var(--arc-white); border: 1px solid var(--arc-gray-100); display: flex; flex-direction: column; }
+  .demo-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 
-    /* Chart area */
-    .chart-container {
-      padding: 12px;
-    }
-    .bar-chart {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .bar-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .bar-label {
-      width: 80px;
-      font-size: 12px;
-      text-align: right;
-      color: var(--calcite-color-text-2);
-      flex-shrink: 0;
-    }
-    .bar-track {
-      flex: 1;
-      height: 20px;
-      background: var(--calcite-color-border-3);
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 1s ease;
-    }
-    .bar-value {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--calcite-color-text-2);
-      width: 36px;
-      flex-shrink: 0;
-    }
+  .card-preview { height: 180px; padding: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+  .card-preview.dark-bg { background: #1a1816; }
+  .card-preview.cream-bg { background: var(--arc-cream); }
+  .card-preview.warm-bg { background: #f0ebe4; }
 
-    /* Timeline */
-    .timeline {
-      padding: 12px 16px;
-    }
-    .timeline-item {
-      display: flex;
-      gap: 12px;
-      padding-bottom: 16px;
-      position: relative;
-    }
-    .timeline-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 11px;
-      top: 28px;
-      bottom: 0;
-      width: 2px;
-      background: var(--calcite-color-border-3);
-    }
-    .timeline-dot {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 12px;
-      color: white;
-    }
-    .timeline-content h4 { margin: 0 0 2px; font-size: 13px; }
-    .timeline-content p { margin: 0; font-size: 12px; color: var(--calcite-color-text-3); }
+  .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+  .card-tag { font-family: var(--font-data); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; color: var(--arc-gray-500); margin-bottom: 8px; }
+  .card-title { font-family: var(--font-headline); font-size: 18px; font-weight: 700; color: var(--arc-black); margin-bottom: 8px; }
+  .card-desc { font-size: 15px; color: var(--arc-gray-700); margin-bottom: 16px; flex: 1; }
+  .card-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .chip { font-family: var(--font-data); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border: 1px solid var(--arc-gray-300); color: var(--arc-gray-500); }
 
-    /* Tabs content fix */
-    calcite-tab { padding: 0; }
+  .launch-btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--arc-white); background: var(--arc-red); border: none; padding: 10px 24px; cursor: pointer; text-decoration: none; align-self: flex-start; }
+  .launch-btn:hover { background: #C41225; }
+  .launch-btn svg { transition: transform 0.2s; }
+  .launch-btn:hover svg { transform: translateX(3px); }
 
-    /* Detail modal content */
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 8px 0;
-    }
-    .detail-item label {
-      font-size: 11px;
-      color: var(--calcite-color-text-3);
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 2px;
-    }
-    .detail-item span {
-      font-size: 14px;
-      font-weight: 600;
-    }
+  /* Mini-preview layouts */
+  .preview-ops { display: grid; grid-template-columns: 40px 1fr 120px; grid-template-rows: 24px 1fr; gap: 6px; width: 100%; height: 100%; }
+  .preview-ops .nav { grid-column: 1/-1; background: var(--arc-gray-100); border-radius: 2px; }
+  .preview-ops .sidebar { background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; }
+  .preview-ops .map { background: #d4e4d4; border-radius: 2px; position: relative; }
+  .preview-ops .map::after { content: ''; position: absolute; top: 30%; left: 40%; width: 8px; height: 8px; background: var(--arc-red); border-radius: 50%; box-shadow: 15px -10px 0 var(--arc-red), -12px 15px 0 var(--arc-red); }
+  .preview-ops .panel { background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; display: flex; flex-direction: column; gap: 4px; padding: 6px; }
+  .preview-ops .stat-mini { height: 12px; background: var(--arc-cream); border-radius: 1px; }
 
-    /* Flow panels */
-    calcite-flow { height: 100%; }
+  .preview-shelter { display: flex; flex-direction: column; gap: 4px; width: 100%; height: 100%; }
+  .preview-shelter .nav { height: 20px; background: var(--arc-gray-100); border-radius: 2px; }
+  .preview-shelter .toolbar { height: 16px; background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; display: flex; gap: 4px; padding: 2px 6px; }
+  .preview-shelter .toolbar span { height: 12px; width: 40px; background: var(--arc-cream); border-radius: 1px; }
+  .preview-shelter .table { flex: 1; background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; display: flex; flex-direction: column; }
+  .preview-shelter .row { height: 14px; border-bottom: 1px solid var(--arc-gray-100); display: flex; }
+  .preview-shelter .row:first-child { background: var(--arc-cream); font-weight: 700; }
+  .preview-shelter .cell { flex: 1; border-right: 1px solid var(--arc-gray-100); }
+  .preview-shelter .cell.red { background: rgba(237,27,46,0.1); }
 
-    /* Tooltip tweaks */
-    .action-pad-container { padding: 8px; }
-  </style>
+  .preview-field { width: 100%; height: 100%; background: #2a2d33; border-radius: 2px; position: relative; overflow: hidden; }
+  .preview-field .road { position: absolute; top: 35%; left: 0; right: 0; height: 3px; background: #4a4d55; transform: rotate(-8deg); }
+  .preview-field .road2 { position: absolute; top: 55%; left: 10%; right: 20%; height: 2px; background: #3a3d45; transform: rotate(5deg); }
+  .preview-field .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; }
+  .preview-field .dot.red { background: var(--arc-red); top: 30%; left: 45%; box-shadow: 0 0 8px rgba(237,27,46,0.5); }
+  .preview-field .dot.blue { background: #3b82f6; top: 55%; left: 65%; width: 7px; height: 7px; }
+  .preview-field .dot.yellow { background: #f59e0b; top: 42%; left: 25%; width: 7px; height: 7px; }
+  .preview-field .fab { position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; background: var(--arc-red); border-radius: 50%; }
+  .preview-field .action-pad { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .preview-field .action-pad span { width: 16px; height: 16px; background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .preview-analytics { display: flex; flex-direction: column; gap: 4px; width: 100%; height: 100%; }
+  .preview-analytics .nav { height: 20px; background: var(--arc-gray-100); border-radius: 2px; }
+  .preview-analytics .tabs { height: 14px; display: flex; gap: 4px; }
+  .preview-analytics .tabs span { flex: 1; background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; }
+  .preview-analytics .tabs span:first-child { border-bottom: 2px solid var(--arc-red); }
+  .preview-analytics .kpis { display: flex; gap: 4px; height: 32px; }
+  .preview-analytics .kpi { flex: 1; background: var(--arc-white); border: 1px solid var(--arc-gray-100); border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .preview-analytics .kpi .val { font-family: var(--font-data); font-size: 10px; font-weight: 500; color: var(--arc-black); }
+  .preview-analytics .heatmap { flex: 1; display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(4, 1fr); gap: 1px; }
+  .preview-analytics .heatmap span { background: rgba(237,27,46,0.08); border-radius: 1px; }
+  .preview-analytics .heatmap span:nth-child(3n) { background: rgba(237,27,46,0.25); }
+  .preview-analytics .heatmap span:nth-child(7n) { background: rgba(237,27,46,0.5); }
+  .preview-analytics .heatmap span:nth-child(11n) { background: rgba(237,27,46,0.7); }
+
+  footer { background: var(--arc-white); border-top: 3px solid var(--arc-black); padding: 40px 0; }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; }
+  .footer-inner p { font-size: 13px; color: var(--arc-gray-500); }
+  .footer-inner a { color: var(--arc-gray-500); text-decoration: none; font-family: var(--font-data); font-size: 12px; }
+  .footer-inner a:hover { color: var(--arc-red); }
+
+  @media (max-width: 600px) {
+    .card-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 28px; }
+    .card-preview { height: 140px; }
+  }
+</style>
 </head>
 <body>
 
-<calcite-shell content-behind class="calcite-mode-light">
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       HEADER — Navigation with logo, search, user menu
-       ═══════════════════════════════════════════════════════════════ -->
-  <calcite-navigation slot="header">
-    <calcite-navigation-logo
-      slot="logo"
-      icon="organization"
-      heading="Disaster Operations"
-      description="Calcite Showcase — All Components"
-    ></calcite-navigation-logo>
-
-    <!-- Center: search (Calcite Input) -->
-    <div slot="content-center" style="width: 320px;">
-      <calcite-input
-        id="global-search"
-        type="search"
-        placeholder="Search shelters, incidents..."
-        icon="search"
-        clearable
-      ></calcite-input>
+<header>
+  <div class="container">
+    <div class="brand-line">
+      <svg viewBox="0 0 32 32" width="28" height="28"><rect x="12" y="4" width="8" height="24" fill="#ED1B2E"/><rect x="4" y="12" width="24" height="8" fill="#ED1B2E"/></svg>
+      <span>American Red Cross</span>
     </div>
+    <h1>Calcite × Dragon<br>Component Showcase</h1>
+    <p class="subtitle">Esri's Calcite Design System fused with Dragon's editorial aesthetic. Four interactive demos, 65+ components, zero frameworks.</p>
+  </div>
+</header>
 
-    <!-- Right: actions -->
-    <div slot="content-end" style="display:flex; align-items:center; gap:8px;">
-      <calcite-action id="theme-toggle" icon="brightness" text="Toggle theme" scale="s"></calcite-action>
-      <calcite-action id="notif-btn" icon="bell" text="Notifications" scale="s" indicator></calcite-action>
-      <calcite-avatar scale="s" full-name="Jeff Franzen" thumbnail=""></calcite-avatar>
-    </div>
+<main>
+  <div class="container">
 
-    <!-- Secondary nav row -->
-    <calcite-navigation slot="navigation-secondary">
-      <calcite-chip-group slot="content-start" selection-mode="single" id="view-mode-chips">
-        <calcite-chip value="map" icon="map" selected>Map View</calcite-chip>
-        <calcite-chip value="table" icon="table">Table View</calcite-chip>
-        <calcite-chip value="charts" icon="graph-bar">Charts</calcite-chip>
-      </calcite-chip-group>
+    <!-- Section: The Collection -->
+    <div class="section-label"><span class="section-num">01</span><span class="section-title">The Collection</span></div>
+    <p class="section-desc">Each demo explores a different interface pattern — from full operations dashboards to mobile field tools. Dragon sets the visual identity; Calcite implements it.</p>
+    <div class="red-rule"></div>
 
-      <div slot="content-end" style="display:flex;gap:6px;padding-right:8px;">
-        <calcite-chip kind="brand" icon="clock" scale="s">Last sync: 2 min ago</calcite-chip>
-        <calcite-chip kind="success" icon="check-circle" scale="s">All systems OK</calcite-chip>
-      </div>
-    </calcite-navigation>
-  </calcite-navigation>
+    <div class="card-grid">
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       LEFT PANEL — Filters + Layer Controls (Flow for drill-in)
-       ═══════════════════════════════════════════════════════════════ -->
-  <calcite-shell-panel slot="panel-start" display-mode="float" width-scale="m" id="left-panel">
-
-    <calcite-action-bar slot="action-bar" id="left-action-bar">
-      <calcite-action data-panel="filters" icon="filter" text="Filters" active></calcite-action>
-      <calcite-action data-panel="layers" icon="layers" text="Layers"></calcite-action>
-      <calcite-action data-panel="bookmarks" icon="bookmark" text="Bookmarks"></calcite-action>
-      <calcite-action data-panel="legend" icon="legend" text="Legend"></calcite-action>
-      <calcite-action slot="actions-end" data-panel="info" icon="information" text="About"></calcite-action>
-    </calcite-action-bar>
-
-    <!-- FILTER PANEL -->
-    <calcite-panel id="panel-filters" heading="Filters" description="Narrow your view" closable>
-      <calcite-action slot="header-actions-end" icon="reset" text="Reset" id="reset-filters"></calcite-action>
-
-      <calcite-block heading="Incident Type" open collapsible>
-        <calcite-icon slot="icon" icon="exclamation-mark-triangle" scale="s"></calcite-icon>
-        <calcite-label>
-          <calcite-combobox id="incident-type" placeholder="Select types..." selection-mode="multiple" max-items="6">
-            <calcite-combobox-item value="fire" text-label="Fire" icon="fire"></calcite-combobox-item>
-            <calcite-combobox-item value="flood" text-label="Flood" icon="water-drop"></calcite-combobox-item>
-            <calcite-combobox-item value="tornado" text-label="Tornado" icon="partly-cloudy"></calcite-combobox-item>
-            <calcite-combobox-item value="hurricane" text-label="Hurricane" icon="hurricane"></calcite-combobox-item>
-            <calcite-combobox-item value="earthquake" text-label="Earthquake" icon="reverse"></calcite-combobox-item>
-            <calcite-combobox-item value="winter" text-label="Winter Storm" icon="snowflake"></calcite-combobox-item>
-          </calcite-combobox>
-        </calcite-label>
-      </calcite-block>
-
-      <calcite-block heading="Geography" open collapsible>
-        <calcite-icon slot="icon" icon="pin" scale="s"></calcite-icon>
-        <calcite-label>
-          Region
-          <calcite-select id="region-select">
-            <calcite-option value="all">All Regions</calcite-option>
-            <calcite-option-group label="Divisions">
-              <calcite-option value="eastern">Eastern Division</calcite-option>
-              <calcite-option value="central">Central Division</calcite-option>
-              <calcite-option value="western">Western Division</calcite-option>
-            </calcite-option-group>
-          </calcite-select>
-        </calcite-label>
-        <calcite-label>
-          State
-          <calcite-input type="text" placeholder="e.g. California" icon="search" clearable></calcite-input>
-        </calcite-label>
-      </calcite-block>
-
-      <calcite-block heading="Date Range" open collapsible>
-        <calcite-icon slot="icon" icon="calendar" scale="s"></calcite-icon>
-        <calcite-label>
-          <calcite-input-date-picker layout="vertical"></calcite-input-date-picker>
-        </calcite-label>
-      </calcite-block>
-
-      <calcite-block heading="Capacity" open collapsible>
-        <calcite-icon slot="icon" icon="gauge" scale="s"></calcite-icon>
-        <calcite-label>
-          Minimum capacity %
-          <calcite-slider id="capacity-slider" min="0" max="100" value="0" label-handles ticks="25" snap></calcite-slider>
-        </calcite-label>
-      </calcite-block>
-
-      <calcite-block heading="Status" open collapsible>
-        <calcite-icon slot="icon" icon="toggle-on" scale="s"></calcite-icon>
-        <calcite-label layout="inline">
-          <calcite-switch id="show-open" checked></calcite-switch>
-          Open shelters
-        </calcite-label>
-        <calcite-label layout="inline">
-          <calcite-switch id="show-full"></calcite-switch>
-          At-capacity shelters
-        </calcite-label>
-        <calcite-label layout="inline">
-          <calcite-switch id="show-closed"></calcite-switch>
-          Closed shelters
-        </calcite-label>
-      </calcite-block>
-
-      <div style="padding: 12px;">
-        <calcite-button width="full" id="apply-filters" icon-start="filter">Apply Filters</calcite-button>
-      </div>
-    </calcite-panel>
-
-    <!-- LAYERS PANEL -->
-    <calcite-panel id="panel-layers" heading="Layers" hidden>
-      <calcite-list id="layer-list" selection-mode="none">
-        <calcite-list-item label="Shelters" description="Active shelter locations" open>
-          <calcite-action slot="actions-end" icon="view-visible" text="Toggle" id="toggle-shelters"></calcite-action>
-          <calcite-slider slot="content-bottom" min="0" max="100" value="100" label-handles></calcite-slider>
-        </calcite-list-item>
-        <calcite-list-item label="Fire Perimeters" description="Active wildfire boundaries">
-          <calcite-action slot="actions-end" icon="view-visible" text="Toggle"></calcite-action>
-        </calcite-list-item>
-        <calcite-list-item label="Evacuation Zones" description="County-issued zones">
-          <calcite-action slot="actions-end" icon="view-visible" text="Toggle"></calcite-action>
-        </calcite-list-item>
-        <calcite-list-item label="Power Outages" description="Utility reported">
-          <calcite-action slot="actions-end" icon="view-hide" text="Toggle"></calcite-action>
-        </calcite-list-item>
-        <calcite-list-item label="Road Closures" description="DOT feed">
-          <calcite-action slot="actions-end" icon="view-hide" text="Toggle"></calcite-action>
-        </calcite-list-item>
-      </calcite-list>
-    </calcite-panel>
-
-    <!-- BOOKMARKS PANEL -->
-    <calcite-panel id="panel-bookmarks" heading="Bookmarks" hidden>
-      <calcite-list selection-mode="single">
-        <calcite-list-item label="Los Angeles Metro" description="Recent wildfire response">
-          <calcite-icon slot="content-start" icon="pin" scale="s"></calcite-icon>
-        </calcite-list-item>
-        <calcite-list-item label="Gulf Coast" description="Hurricane season monitoring">
-          <calcite-icon slot="content-start" icon="pin" scale="s"></calcite-icon>
-        </calcite-list-item>
-        <calcite-list-item label="Tornado Alley" description="Central US spring operations">
-          <calcite-icon slot="content-start" icon="pin" scale="s"></calcite-icon>
-        </calcite-list-item>
-        <calcite-list-item label="Pacific Northwest" description="Flood risk areas">
-          <calcite-icon slot="content-start" icon="pin" scale="s"></calcite-icon>
-        </calcite-list-item>
-      </calcite-list>
-    </calcite-panel>
-
-    <!-- LEGEND PANEL -->
-    <calcite-panel id="panel-legend" heading="Legend" hidden>
-      <div id="legend-container" style="padding: 12px;"></div>
-    </calcite-panel>
-
-    <!-- INFO PANEL -->
-    <calcite-panel id="panel-info" heading="About This Dashboard" hidden>
-      <div style="padding: 12px;">
-        <calcite-notice open icon="information">
-          <div slot="title">Calcite Design System Showcase</div>
-          <div slot="message">This demo shows every major Calcite component wired together as a real disaster operations dashboard. All components are interactive — click, filter, and explore.</div>
-        </calcite-notice>
-        <calcite-notice open kind="warning" icon="exclamation-mark-triangle" style="margin-top:8px;">
-          <div slot="title">Sample Data Only</div>
-          <div slot="message">All shelter and incident data shown is simulated for demonstration purposes.</div>
-        </calcite-notice>
-      </div>
-    </calcite-panel>
-  </calcite-shell-panel>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       MAIN CONTENT — Map + overlays
-       ═══════════════════════════════════════════════════════════════ -->
-  <div id="viewDiv"></div>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       RIGHT PANEL — Data: Stats, List, Timeline (Tabbed)
-       ═══════════════════════════════════════════════════════════════ -->
-  <calcite-shell-panel slot="panel-end" display-mode="float" width-scale="m" id="right-panel">
-    <calcite-panel heading="Operations Overview">
-
-      <!-- Stat cards at top -->
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="stat-shelters">24</div>
-          <div class="stat-label">Active Shelters</div>
+      <!-- Card 1: Operations Dashboard -->
+      <div class="demo-card">
+        <div class="card-preview cream-bg">
+          <div class="preview-ops">
+            <div class="nav"></div>
+            <div class="sidebar"></div>
+            <div class="map"></div>
+            <div class="panel"><div class="stat-mini"></div><div class="stat-mini"></div><div class="stat-mini"></div><div class="stat-mini"></div></div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="stat-residents">3,847</div>
-          <div class="stat-label">Residents Served</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="stat-volunteers">412</div>
-          <div class="stat-label">Volunteers Deployed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="stat-incidents">7</div>
-          <div class="stat-label">Active Incidents</div>
+        <div class="card-body">
+          <div class="card-tag">Demo 01 — Map + Panels</div>
+          <div class="card-title">Disaster Ops Center</div>
+          <p class="card-desc">Full operations dashboard with ArcGIS map, filter panels, tabbed data views, modals, alerts, and dark mode toggle. The original 30-component showcase, now with Dragon typography.</p>
+          <div class="card-chips">
+            <span class="chip">shell</span><span class="chip">navigation</span><span class="chip">panel</span><span class="chip">action-bar</span><span class="chip">tabs</span><span class="chip">modal</span><span class="chip">table</span><span class="chip">map</span>
+          </div>
+          <a href="01-operations-dashboard.html" class="launch-btn">Launch Demo <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h11M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </div>
 
-      <!-- Tabbed content below stats -->
-      <calcite-tabs>
-        <calcite-tab-nav slot="title-group">
-          <calcite-tab-title selected icon-start="list">Shelters</calcite-tab-title>
-          <calcite-tab-title icon-start="graph-bar">Capacity</calcite-tab-title>
-          <calcite-tab-title icon-start="clock">Timeline</calcite-tab-title>
-        </calcite-tab-nav>
-
-        <!-- TAB 1: Shelter list -->
-        <calcite-tab selected>
-          <calcite-list id="shelter-list" filter-enabled filter-placeholder="Filter shelters...">
-            <!-- Populated by JS -->
-          </calcite-list>
-        </calcite-tab>
-
-        <!-- TAB 2: Capacity bar chart -->
-        <calcite-tab>
-          <div class="chart-container">
-            <div class="bar-chart" id="capacity-chart">
-              <!-- Populated by JS -->
+      <!-- Card 2: Shelter Tracker -->
+      <div class="demo-card">
+        <div class="card-preview cream-bg">
+          <div class="preview-shelter">
+            <div class="nav"></div>
+            <div class="toolbar"><span></span><span></span><span></span></div>
+            <div class="table">
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell red"></div><div class="cell"></div></div>
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell red"></div><div class="cell"></div></div>
+              <div class="row"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
             </div>
           </div>
-        </calcite-tab>
-
-        <!-- TAB 3: Activity timeline -->
-        <calcite-tab>
-          <div class="timeline" id="activity-timeline">
-            <!-- Populated by JS -->
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Demo 02 — Data CRUD</div>
+          <div class="card-title">Shelter Tracker</div>
+          <p class="card-desc">Table-first data management console. Toggle between table and card views, inline editing, capacity meters, shelter quality ratings, and form validation dialogs.</p>
+          <div class="card-chips">
+            <span class="chip">table</span><span class="chip">pagination</span><span class="chip">meter</span><span class="chip">dialog</span><span class="chip">inline-editable</span><span class="chip">rating</span><span class="chip">segmented-control</span>
           </div>
-        </calcite-tab>
-      </calcite-tabs>
-    </calcite-panel>
-  </calcite-shell-panel>
+          <a href="02-shelter-tracker.html" class="launch-btn">Launch Demo <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h11M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       BOTTOM PANEL — Table view (hidden by default)
-       ═══════════════════════════════════════════════════════════════ -->
-  <calcite-shell-panel slot="panel-bottom" display-mode="overlay" height-scale="m" id="bottom-panel" style="display:none;">
-    <calcite-panel heading="Shelter Data Table" closable id="table-panel">
-      <calcite-action slot="header-actions-end" icon="download" text="Export CSV" id="export-btn"></calcite-action>
-      <calcite-table striped caption="All Shelters" id="shelter-table" style="width:100%;">
-        <calcite-table-row slot="table-header">
-          <calcite-table-header heading="Name"></calcite-table-header>
-          <calcite-table-header heading="City"></calcite-table-header>
-          <calcite-table-header heading="Type"></calcite-table-header>
-          <calcite-table-header heading="Capacity"></calcite-table-header>
-          <calcite-table-header heading="Occupancy"></calcite-table-header>
-          <calcite-table-header heading="Status"></calcite-table-header>
-          <calcite-table-header heading="Actions"></calcite-table-header>
-        </calcite-table-row>
-        <!-- Populated by JS -->
-      </calcite-table>
-    </calcite-panel>
-  </calcite-shell-panel>
+      <!-- Card 3: Field Recon -->
+      <div class="demo-card">
+        <div class="card-preview dark-bg">
+          <div class="preview-field">
+            <div class="road"></div>
+            <div class="road2"></div>
+            <div class="dot red"></div>
+            <div class="dot blue"></div>
+            <div class="dot yellow"></div>
+            <div class="action-pad"><span></span><span></span><span></span><span></span></div>
+            <div class="fab"></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Demo 03 — Mobile Map</div>
+          <div class="card-title">Field Intelligence Map</div>
+          <p class="card-desc">Map-dominant, mobile-first interface with dark basemap. Floating action pad, slide-up detail sheets, GPS pulse animation, and drill-in flow navigation.</p>
+          <div class="card-chips">
+            <span class="chip">action-pad</span><span class="chip">sheet</span><span class="chip">fab</span><span class="chip">flow</span><span class="chip">tooltip</span><span class="chip">tree</span><span class="chip">dark mode</span>
+          </div>
+          <a href="03-field-recon.html" class="launch-btn">Launch Demo <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h11M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════════════════════════════ -->
-  <calcite-shell-panel slot="footer" display-mode="float">
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 16px; font-size:12px; color:var(--calcite-color-text-3);">
-      <span>Calcite Design System Showcase — Built with <code>&lt;calcite-*&gt;</code> web components</span>
-      <span>
-        <calcite-link href="https://developers.arcgis.com/calcite-design-system/components/" target="_blank">Component Docs</calcite-link>
-        &nbsp;|&nbsp;
-        <calcite-link href="https://developers.arcgis.com/calcite-design-system/icons/" target="_blank">Icons</calcite-link>
-      </span>
+      <!-- Card 4: Analytics Hub -->
+      <div class="demo-card">
+        <div class="card-preview warm-bg">
+          <div class="preview-analytics">
+            <div class="nav"></div>
+            <div class="tabs"><span></span><span></span><span></span></div>
+            <div class="kpis"><div class="kpi"><span class="val">847</span></div><div class="kpi"><span class="val">12.4</span></div><div class="kpi"><span class="val">94%</span></div></div>
+            <div class="heatmap"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">Demo 04 — Analytics</div>
+          <div class="card-title">Incident Analytics Hub</div>
+          <p class="card-desc">Multi-tab data visualization with KPI tiles, incident lifecycle stepper, interactive CSS calendar heatmap, sortable data tables, and methodology accordion.</p>
+          <div class="card-chips">
+            <span class="chip">tabs</span><span class="chip">tile-group</span><span class="chip">stepper</span><span class="chip">accordion</span><span class="chip">date-picker</span><span class="chip">heatmap</span>
+          </div>
+          <a href="04-analytics-hub.html" class="launch-btn">Launch Demo <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h11M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+
     </div>
-  </calcite-shell-panel>
 
-</calcite-shell>
+    <!-- Section: The Thesis -->
+    <div class="section-label"><span class="section-num">02</span><span class="section-title">The Thesis</span></div>
+    <p class="section-desc">Dragon is the visual language — warm paper tones, editorial typography, red used like a scalpel. Calcite is the component library — 65+ accessible web components built for GIS. They fuse inside every demo.</p>
+    <div class="red-rule"></div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     DETAIL MODAL — Shelter details (opened on list click)
-     ═══════════════════════════════════════════════════════════════ -->
-<calcite-modal id="shelter-modal" width-scale="m">
-  <div slot="header" id="modal-title">Shelter Details</div>
-  <div slot="content" id="modal-content">
-    <div class="detail-grid" id="modal-grid"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:64px;">
+      <div>
+        <div style="font-family:var(--font-headline);font-size:48px;font-weight:700;color:var(--arc-red);margin-bottom:4px;">65+</div>
+        <div style="font-family:var(--font-data);font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:8px;">Calcite Components</div>
+        <p style="font-size:15px;color:var(--arc-gray-700);">Shell, navigation, panels, tabs, tables, modals, dialogs, meters, steppers, trees, and more — all wired together.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--font-headline);font-size:48px;font-weight:700;color:var(--arc-black);margin-bottom:4px;">3</div>
+        <div style="font-family:var(--font-data);font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:8px;">Dragon Fonts</div>
+        <p style="font-size:15px;color:var(--arc-gray-700);">Libre Baskerville for authority, Source Sans Pro for readability, IBM Plex Mono for data precision.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--font-headline);font-size:48px;font-weight:700;color:var(--arc-black);margin-bottom:4px;">0</div>
+        <div style="font-family:var(--font-data);font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--arc-gray-500);margin-bottom:8px;">Frameworks</div>
+        <p style="font-size:15px;color:var(--arc-gray-700);">Pure HTML, CSS, and vanilla JS. No React, no build step, no bundler. Just components and craft.</p>
+      </div>
+    </div>
 
-    <calcite-block heading="Capacity Over Time" open collapsible style="margin-top:12px;">
-      <div class="bar-chart" id="modal-chart"></div>
-    </calcite-block>
+    <!-- Section: Component Coverage -->
+    <div class="section-label"><span class="section-num">03</span><span class="section-title">Component Coverage</span></div>
+    <p class="section-desc">Every component is interactive — click, filter, toggle, and explore. The demos use Calcite CDN v2.13.2 with ArcGIS Maps SDK 4.32.</p>
+    <div class="red-rule"></div>
 
-    <calcite-block heading="Notes" open collapsible>
-      <calcite-text-area placeholder="Add operational notes..." rows="3"></calcite-text-area>
-    </calcite-block>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:64px;">
+      <span class="chip">shell</span><span class="chip">navigation</span><span class="chip">navigation-logo</span><span class="chip">navigation-user</span><span class="chip">shell-panel</span><span class="chip">panel</span><span class="chip">action-bar</span><span class="chip">action</span><span class="chip">action-pad</span><span class="chip">block</span><span class="chip">combobox</span><span class="chip">select</span><span class="chip">option</span><span class="chip">input</span><span class="chip">input-date-picker</span><span class="chip">input-message</span><span class="chip">slider</span><span class="chip">switch</span><span class="chip">label</span><span class="chip">button</span><span class="chip">split-button</span><span class="chip">fab</span><span class="chip">list</span><span class="chip">list-item</span><span class="chip">tabs</span><span class="chip">tab-nav</span><span class="chip">tab-title</span><span class="chip">tab</span><span class="chip">table</span><span class="chip">table-row</span><span class="chip">table-header</span><span class="chip">table-cell</span><span class="chip">modal</span><span class="chip">dialog</span><span class="chip">popover</span><span class="chip">sheet</span><span class="chip">alert</span><span class="chip">notice</span><span class="chip">chip</span><span class="chip">chip-group</span><span class="chip">progress</span><span class="chip">meter</span><span class="chip">loader</span><span class="chip">scrim</span><span class="chip">link</span><span class="chip">icon</span><span class="chip">avatar</span><span class="chip">text-area</span><span class="chip">segmented-control</span><span class="chip">pagination</span><span class="chip">inline-editable</span><span class="chip">rating</span><span class="chip">card</span><span class="chip">tile</span><span class="chip">tile-group</span><span class="chip">flow</span><span class="chip">flow-item</span><span class="chip">tooltip</span><span class="chip">tree</span><span class="chip">tree-item</span><span class="chip">stepper</span><span class="chip">stepper-item</span><span class="chip">accordion</span><span class="chip">accordion-item</span>
+    </div>
+
+    <!-- Section: Built With -->
+    <div class="section-label"><span class="section-num">04</span><span class="section-title">Built With</span></div>
+    <p class="section-desc">This showcase demonstrates what's possible when you pair a robust component system with intentional design. Every line was co-authored by a human and an AI.</p>
+    <div class="red-rule"></div>
+
+    <div style="display:flex;gap:48px;font-size:14px;color:var(--arc-gray-500);">
+      <div><span style="font-family:var(--font-data);font-weight:500;color:var(--arc-gray-700);">Calcite</span> v2.13.2</div>
+      <div><span style="font-family:var(--font-data);font-weight:500;color:var(--arc-gray-700);">ArcGIS Maps SDK</span> v4.32</div>
+      <div><span style="font-family:var(--font-data);font-weight:500;color:var(--arc-gray-700);">Dragon</span> Design System</div>
+      <div><span style="font-family:var(--font-data);font-weight:500;color:var(--arc-gray-700);">Claude</span> Code</div>
+    </div>
+
   </div>
-  <calcite-button slot="secondary" kind="neutral" appearance="outline" id="modal-close">Close</calcite-button>
-  <calcite-button slot="primary" icon-start="pencil">Edit Record</calcite-button>
-</calcite-modal>
+</main>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     NOTIFICATION POPOVER
-     ═══════════════════════════════════════════════════════════════ -->
-<calcite-popover reference-element="notif-btn" placement="bottom-end" auto-close label="Notifications" id="notif-popover">
-  <div style="width:280px; padding:12px;">
-    <h4 style="margin:0 0 8px; font-size:14px;">Notifications</h4>
-    <calcite-list>
-      <calcite-list-item label="Shelter at 90% capacity" description="Hillsborough HS — 2 min ago">
-        <calcite-icon slot="content-start" icon="exclamation-mark-triangle" style="color:var(--calcite-color-status-warning);" scale="s"></calcite-icon>
-      </calcite-list-item>
-      <calcite-list-item label="New shelter opened" description="Riverside Comm Ctr — 15 min ago">
-        <calcite-icon slot="content-start" icon="check-circle" style="color:var(--calcite-color-status-success);" scale="s"></calcite-icon>
-      </calcite-list-item>
-      <calcite-list-item label="Volunteer check-in" description="12 new volunteers — 30 min ago">
-        <calcite-icon slot="content-start" icon="user-plus" style="color:var(--calcite-color-brand);" scale="s"></calcite-icon>
-      </calcite-list-item>
-    </calcite-list>
+<footer>
+  <div class="container footer-inner">
+    <p>Calcite × Dragon Component Showcase — Built with Claude Code</p>
+    <a href="https://developers.arcgis.com/calcite-design-system/components/" target="_blank">Calcite Docs →</a>
   </div>
-</calcite-popover>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     ALERTS (shown at bottom of screen)
-     ═══════════════════════════════════════════════════════════════ -->
-<calcite-alert id="filter-alert" kind="info" icon="filter" placement="bottom" auto-close auto-close-duration="medium" label="Filter applied">
-  <div slot="title">Filters Applied</div>
-  <div slot="message" id="filter-alert-msg">Showing 18 of 24 shelters.</div>
-</calcite-alert>
-
-<calcite-alert id="success-alert" kind="success" icon="check-circle" placement="bottom" auto-close auto-close-duration="medium" label="Success">
-  <div slot="title">Success</div>
-  <div slot="message" id="success-alert-msg">Operation completed.</div>
-</calcite-alert>
-
-<calcite-alert id="capacity-alert" kind="warning" icon="exclamation-mark-triangle" placement="bottom" open label="Warning">
-  <div slot="title">Capacity Warning</div>
-  <div slot="message">3 shelters are above 85% capacity.</div>
-  <calcite-link slot="link" href="#">View shelters</calcite-link>
-</calcite-alert>
-
-
-<!-- ═══════════════════════════════════════════════════════════════
-     JAVASCRIPT — Wire everything together
-     ═══════════════════════════════════════════════════════════════ -->
-<script>
-  // ─── SAMPLE DATA ──────────────────────────────────────────────
-  const shelters = [
-    { name: "Hillsborough High School", city: "Tampa", type: "Mega Shelter", capacity: 300, occupancy: 271, status: "open", lat: 27.964, lon: -82.437, incident: "Hurricane" },
-    { name: "Riverside Community Center", city: "Jacksonville", type: "Standard", capacity: 150, occupancy: 45, status: "open", lat: 30.319, lon: -81.660, incident: "Flood" },
-    { name: "Palm Beach Convention Ctr", city: "West Palm Beach", type: "Mega Shelter", capacity: 500, occupancy: 500, status: "full", lat: 26.710, lon: -80.052, incident: "Hurricane" },
-    { name: "Oak Ridge Elementary", city: "Orlando", type: "Standard", capacity: 120, occupancy: 88, status: "open", lat: 28.442, lon: -81.424, incident: "Tornado" },
-    { name: "Pinellas Park Rec Center", city: "St. Petersburg", type: "Standard", capacity: 200, occupancy: 167, status: "open", lat: 27.843, lon: -82.700, incident: "Hurricane" },
-    { name: "Leon County Civic Center", city: "Tallahassee", type: "Mega Shelter", capacity: 400, occupancy: 312, status: "open", lat: 30.440, lon: -84.281, incident: "Tornado" },
-    { name: "Brevard County Fairgrounds", city: "Melbourne", type: "Mega Shelter", capacity: 350, occupancy: 350, status: "full", lat: 28.084, lon: -80.637, incident: "Hurricane" },
-    { name: "Volusia County Library", city: "Daytona Beach", type: "Standard", capacity: 80, occupancy: 42, status: "open", lat: 29.211, lon: -81.024, incident: "Flood" },
-    { name: "Alachua County Shelter", city: "Gainesville", type: "Standard", capacity: 180, occupancy: 0, status: "closed", lat: 29.651, lon: -82.325, incident: "Tornado" },
-    { name: "Sarasota High School", city: "Sarasota", type: "Standard", capacity: 160, occupancy: 134, status: "open", lat: 27.337, lon: -82.538, incident: "Hurricane" },
-    { name: "Monroe County Shelter", city: "Key West", type: "Standard", capacity: 100, occupancy: 98, status: "open", lat: 24.556, lon: -81.784, incident: "Hurricane" },
-    { name: "Collier County Fairgrounds", city: "Naples", type: "Mega Shelter", capacity: 450, occupancy: 287, status: "open", lat: 26.237, lon: -81.764, incident: "Hurricane" },
-  ];
-
-  const timelineData = [
-    { time: "2:45 PM", title: "Capacity alert triggered", desc: "Palm Beach Convention Ctr reached 100%", color: "#EF4444" },
-    { time: "1:30 PM", title: "New shelter opened", desc: "Collier County Fairgrounds activated", color: "#22C55E" },
-    { time: "12:15 PM", title: "Volunteer surge", desc: "45 new volunteers checked in at Tampa", color: "#3B82F6" },
-    { time: "10:00 AM", title: "Weather update", desc: "Hurricane downgraded to Cat 2", color: "#F59E0B" },
-    { time: "8:30 AM", title: "Operations briefing", desc: "Morning sitrep distributed to all chapters", color: "#8B5CF6" },
-    { time: "6:00 AM", title: "Shift change", desc: "Night crew rotated out, day crew in", color: "#6B7280" },
-  ];
-
-  // ─── POPULATE SHELTER LIST ────────────────────────────────────
-  const shelterList = document.getElementById('shelter-list');
-  shelters.forEach((s, i) => {
-    const pct = s.capacity > 0 ? Math.round((s.occupancy / s.capacity) * 100) : 0;
-    const statusKind = s.status === 'full' ? 'danger' : s.status === 'closed' ? 'neutral' : 'brand';
-    const statusIcon = s.status === 'full' ? 'exclamation-mark-triangle' : s.status === 'closed' ? 'x' : 'check';
-
-    const item = document.createElement('calcite-list-item');
-    item.label = s.name;
-    item.description = `${s.city} — ${s.occupancy}/${s.capacity} (${pct}%)`;
-    item.value = String(i);
-    item.innerHTML = `
-      <calcite-icon slot="content-start" icon="${s.incident === 'Hurricane' ? 'hurricane' : s.incident === 'Flood' ? 'water-drop' : s.incident === 'Tornado' ? 'partly-cloudy' : 'fire'}" scale="s"></calcite-icon>
-      <div slot="content-end" style="display:flex;gap:4px;align-items:center;">
-        <calcite-chip scale="s" kind="${statusKind}" icon="${statusIcon}">${s.status}</calcite-chip>
-      </div>
-    `;
-    item.addEventListener('calciteListItemSelect', () => openShelterModal(i));
-    shelterList.appendChild(item);
-  });
-
-  // ─── POPULATE CAPACITY CHART ──────────────────────────────────
-  const chartContainer = document.getElementById('capacity-chart');
-  shelters.filter(s => s.status !== 'closed').forEach(s => {
-    const pct = Math.round((s.occupancy / s.capacity) * 100);
-    const color = pct >= 90 ? '#EF4444' : pct >= 70 ? '#F59E0B' : '#22C55E';
-    const row = document.createElement('div');
-    row.className = 'bar-row';
-    row.innerHTML = `
-      <span class="bar-label">${s.city}</span>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${pct}%; background:${color};"></div>
-      </div>
-      <span class="bar-value">${pct}%</span>
-    `;
-    chartContainer.appendChild(row);
-  });
-
-  // ─── POPULATE TIMELINE ────────────────────────────────────────
-  const timelineContainer = document.getElementById('activity-timeline');
-  timelineData.forEach(t => {
-    const item = document.createElement('div');
-    item.className = 'timeline-item';
-    item.innerHTML = `
-      <div class="timeline-dot" style="background:${t.color};">
-        <calcite-icon icon="clock" scale="s"></calcite-icon>
-      </div>
-      <div class="timeline-content">
-        <h4>${t.title}</h4>
-        <p>${t.desc}</p>
-        <span style="font-size:11px; color:var(--calcite-color-text-3);">${t.time}</span>
-      </div>
-    `;
-    timelineContainer.appendChild(item);
-  });
-
-  // ─── POPULATE TABLE ───────────────────────────────────────────
-  const table = document.getElementById('shelter-table');
-  shelters.forEach((s, i) => {
-    const pct = s.capacity > 0 ? Math.round((s.occupancy / s.capacity) * 100) : 0;
-    const statusKind = s.status === 'full' ? 'danger' : s.status === 'closed' ? 'neutral' : 'success';
-    const row = document.createElement('calcite-table-row');
-    row.innerHTML = `
-      <calcite-table-cell>${s.name}</calcite-table-cell>
-      <calcite-table-cell>${s.city}</calcite-table-cell>
-      <calcite-table-cell>${s.type}</calcite-table-cell>
-      <calcite-table-cell>${s.capacity}</calcite-table-cell>
-      <calcite-table-cell>
-        <div style="display:flex;align-items:center;gap:6px;">
-          ${pct}%
-          <calcite-progress value="${pct / 100}" style="width:60px;"></calcite-progress>
-        </div>
-      </calcite-table-cell>
-      <calcite-table-cell><calcite-chip scale="s" kind="${statusKind}">${s.status}</calcite-chip></calcite-table-cell>
-      <calcite-table-cell>
-        <calcite-button scale="s" appearance="outline" kind="neutral" icon-start="view-detail" onclick="openShelterModal(${i})">View</calcite-button>
-      </calcite-table-cell>
-    `;
-    table.appendChild(row);
-  });
-
-  // ─── MODAL ────────────────────────────────────────────────────
-  function openShelterModal(index) {
-    const s = shelters[index];
-    const pct = s.capacity > 0 ? Math.round((s.occupancy / s.capacity) * 100) : 0;
-    document.getElementById('modal-title').textContent = s.name;
-
-    const grid = document.getElementById('modal-grid');
-    grid.innerHTML = `
-      <div class="detail-item"><label>City</label><span>${s.city}</span></div>
-      <div class="detail-item"><label>Type</label><span>${s.type}</span></div>
-      <div class="detail-item"><label>Capacity</label><span>${s.capacity}</span></div>
-      <div class="detail-item"><label>Occupancy</label><span>${s.occupancy} (${pct}%)</span></div>
-      <div class="detail-item"><label>Incident</label><span>${s.incident}</span></div>
-      <div class="detail-item"><label>Status</label><span><calcite-chip kind="${s.status === 'full' ? 'danger' : s.status === 'closed' ? 'neutral' : 'success'}">${s.status}</calcite-chip></span></div>
-    `;
-
-    // Mini chart in modal
-    const chart = document.getElementById('modal-chart');
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
-    chart.innerHTML = '';
-    days.forEach((d, di) => {
-      const val = Math.min(100, Math.max(10, pct - 30 + di * 8 + Math.floor(Math.random() * 15)));
-      const color = val >= 90 ? '#EF4444' : val >= 70 ? '#F59E0B' : '#22C55E';
-      chart.innerHTML += `
-        <div class="bar-row">
-          <span class="bar-label">${d}</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${val}%;background:${color};"></div></div>
-          <span class="bar-value">${val}%</span>
-        </div>
-      `;
-    });
-
-    document.getElementById('shelter-modal').open = true;
-  }
-
-  document.getElementById('modal-close').addEventListener('click', () => {
-    document.getElementById('shelter-modal').open = false;
-  });
-
-  // ─── LEFT PANEL ACTION BAR SWITCHING ──────────────────────────
-  const panels = {
-    filters: document.getElementById('panel-filters'),
-    layers: document.getElementById('panel-layers'),
-    bookmarks: document.getElementById('panel-bookmarks'),
-    legend: document.getElementById('panel-legend'),
-    info: document.getElementById('panel-info'),
-  };
-
-  document.getElementById('left-action-bar').addEventListener('click', (e) => {
-    const action = e.target.closest('calcite-action');
-    if (!action) return;
-    const panelKey = action.dataset.panel;
-    if (!panelKey) return;
-
-    // Toggle active states
-    document.querySelectorAll('#left-action-bar calcite-action').forEach(a => a.active = false);
-    action.active = true;
-
-    // Show matching panel
-    Object.entries(panels).forEach(([key, panel]) => {
-      panel.hidden = key !== panelKey;
-    });
-  });
-
-  // ─── THEME TOGGLE ─────────────────────────────────────────────
-  let isDark = false;
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    isDark = !isDark;
-    const shell = document.querySelector('calcite-shell');
-    shell.classList.toggle('calcite-mode-light', !isDark);
-    shell.classList.toggle('calcite-mode-dark', isDark);
-    document.getElementById('theme-toggle').icon = isDark ? 'moon' : 'brightness';
-  });
-
-  // ─── VIEW MODE CHIPS ──────────────────────────────────────────
-  document.getElementById('view-mode-chips').addEventListener('calciteChipGroupSelect', (e) => {
-    const selected = e.target.querySelector('calcite-chip[selected]');
-    if (!selected) return;
-    const mode = selected.value;
-    const bottomPanel = document.getElementById('bottom-panel');
-    const viewDiv = document.getElementById('viewDiv');
-
-    if (mode === 'table') {
-      bottomPanel.style.display = '';
-      viewDiv.style.opacity = '0.3';
-    } else {
-      bottomPanel.style.display = 'none';
-      viewDiv.style.opacity = '1';
-    }
-  });
-
-  // ─── TABLE PANEL CLOSE ────────────────────────────────────────
-  document.getElementById('table-panel').addEventListener('calcitePanelClose', () => {
-    document.getElementById('bottom-panel').style.display = 'none';
-    document.getElementById('viewDiv').style.opacity = '1';
-  });
-
-  // ─── FILTER BUTTON ────────────────────────────────────────────
-  document.getElementById('apply-filters').addEventListener('click', () => {
-    const alert = document.getElementById('filter-alert');
-    const count = Math.floor(Math.random() * 10) + 12;
-    document.getElementById('filter-alert-msg').textContent = `Showing ${count} of ${shelters.length} shelters.`;
-    alert.open = true;
-  });
-
-  // ─── NOTIFICATION POPOVER ─────────────────────────────────────
-  document.getElementById('notif-btn').addEventListener('click', () => {
-    const popover = document.getElementById('notif-popover');
-    popover.open = !popover.open;
-  });
-
-  // ─── EXPORT BUTTON ────────────────────────────────────────────
-  document.getElementById('export-btn').addEventListener('click', () => {
-    const msg = document.getElementById('success-alert-msg');
-    msg.textContent = 'Shelter data exported to CSV.';
-    document.getElementById('success-alert').open = true;
-  });
-
-  // ─── ArcGIS MAP ───────────────────────────────────────────────
-  require([
-    "esri/Map",
-    "esri/views/MapView",
-    "esri/Graphic",
-    "esri/layers/GraphicsLayer",
-    "esri/widgets/Legend"
-  ], function(Map, MapView, Graphic, GraphicsLayer, Legend) {
-
-    const shelterLayer = new GraphicsLayer({ title: "Shelters" });
-
-    const map = new Map({
-      basemap: "gray-vector",
-      layers: [shelterLayer]
-    });
-
-    const view = new MapView({
-      container: "viewDiv",
-      map: map,
-      center: [-82.0, 28.5],
-      zoom: 7,
-      padding: { left: 0, right: 0 },
-      ui: { components: ["zoom", "compass"] }
-    });
-
-    // Add shelter points
-    shelters.forEach((s, i) => {
-      const color = s.status === 'full' ? [239, 68, 68] : s.status === 'closed' ? [156, 163, 175] : [237, 27, 46];
-      const size = s.type === 'Mega Shelter' ? 14 : 10;
-
-      const graphic = new Graphic({
-        geometry: { type: "point", longitude: s.lon, latitude: s.lat },
-        symbol: {
-          type: "simple-marker",
-          color: color,
-          size: size,
-          outline: { color: [255, 255, 255], width: 2 }
-        },
-        attributes: { ...s, index: i },
-        popupTemplate: {
-          title: s.name,
-          content: `
-            <b>City:</b> ${s.city}<br>
-            <b>Type:</b> ${s.type}<br>
-            <b>Capacity:</b> ${s.occupancy}/${s.capacity} (${Math.round(s.occupancy/s.capacity*100)}%)<br>
-            <b>Incident:</b> ${s.incident}<br>
-            <b>Status:</b> ${s.status}
-          `
-        }
-      });
-      shelterLayer.add(graphic);
-    });
-
-    // Legend widget into Calcite panel
-    view.when(() => {
-      const legend = new Legend({
-        view: view,
-        container: "legend-container"
-      });
-    });
-
-    // Click graphic → open modal
-    view.on("click", (event) => {
-      view.hitTest(event).then((response) => {
-        const result = response.results.find(r => r.graphic.layer === shelterLayer);
-        if (result) {
-          openShelterModal(result.graphic.attributes.index);
-        }
-      });
-    });
-  });
-</script>
+</footer>
 
 </body>
 </html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Recon — Intelligence Map</title>
+
+  <!-- Calcite Components -->
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css">
+
+  <!-- ArcGIS Maps SDK (dark theme) -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/dark/main.css">
+  <script src="https://js.arcgis.com/4.32/"></script>
+
+  <!-- Dragon Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+Pro:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* === Dragon × Calcite Fusion === */
+    :root {
+      --calcite-color-brand: #ED1B2E;
+      --calcite-color-brand-hover: #C41225;
+      --calcite-color-brand-press: #A00E1E;
+      --dragon-bg: #1a1816;
+      --dragon-cream: #f7f5f2;
+      --dragon-red: #ED1B2E;
+      --font-heading: 'Libre Baskerville', Georgia, serif;
+      --font-body: 'Source Sans Pro', 'Avenir Next', sans-serif;
+      --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+    }
+
+    html, body { margin: 0; padding: 0; height: 100%; font-family: var(--font-body); background: var(--dragon-bg); }
+    #viewDiv { height: 100%; width: 100%; }
+
+    /* Navigation — semi-transparent over map */
+    calcite-navigation { --calcite-navigation-background: rgba(26, 24, 22, 0.85); backdrop-filter: blur(8px); }
+    calcite-navigation-logo { --calcite-color-text-1: #fff; }
+
+    /* Floating action pad — top right */
+    .action-pad-float {
+      position: fixed; top: 72px; right: 16px; z-index: 10;
+    }
+
+    /* Side panel overlay */
+    calcite-shell-panel { --calcite-shell-panel-width: 320px; }
+    .layer-panel { background: var(--dragon-bg); }
+
+    /* Bottom sheet content */
+    .sheet-content {
+      padding: 20px 24px 28px; background: var(--dragon-cream); color: #1a1816;
+      font-family: var(--font-body); max-width: 600px; margin: 0 auto;
+    }
+    .sheet-heading {
+      font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700;
+      color: #1a1816; margin: 0 0 8px;
+    }
+    .red-rule { width: 40px; height: 3px; background: var(--dragon-red); border: none; margin: 0 0 16px; border-radius: 0; }
+    .detail-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-bottom: 18px;
+    }
+    .detail-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #6b6560; margin-bottom: 2px; }
+    .detail-value { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 500; color: #1a1816; }
+    .sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+    /* FAB positioning */
+    .fab-float { position: fixed; bottom: 24px; right: 24px; z-index: 10; }
+
+    /* GPS pulse on active markers */
+    @keyframes gps-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(237, 27, 46, 0.6); }
+      70%  { box-shadow: 0 0 0 15px rgba(237, 27, 46, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(237, 27, 46, 0); }
+    }
+    .pulse-dot {
+      position: absolute; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--dragon-red); animation: gps-pulse 2s ease-out infinite;
+      pointer-events: none;
+    }
+
+    /* Active reports chip */
+    .nav-right { display: flex; align-items: center; gap: 8px; padding-right: 8px; }
+
+    /* Dialog form */
+    .report-form { display: flex; flex-direction: column; gap: 14px; padding: 8px 0; }
+
+    /* Tree styling */
+    calcite-tree { --calcite-tree-indicator-color: var(--dragon-red); }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .action-pad-float { top: 64px; right: 8px; }
+      .fab-float { bottom: 16px; right: 16px; }
+      .sheet-content { padding: 16px; }
+      .sheet-heading { font-size: 1.15rem; }
+      calcite-shell-panel { --calcite-shell-panel-width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+<calcite-shell content-behind class="calcite-mode-dark">
+
+  <!-- === HEADER NAV === -->
+  <calcite-navigation slot="header">
+    <calcite-navigation-logo slot="logo" icon="urban-model" heading="Field Recon" description="Intelligence Map"></calcite-navigation-logo>
+    <div slot="content-end" class="nav-right">
+      <calcite-chip id="reportCountChip" icon="report" scale="s" kind="brand">3 Active Reports</calcite-chip>
+      <calcite-action id="themeToggle" icon="brightness" scale="s" text="Toggle theme"></calcite-action>
+    </div>
+  </calcite-navigation>
+
+  <!-- === SIDE PANEL (overlay, starts hidden) === -->
+  <calcite-shell-panel slot="panel-start" display-mode="overlay" id="layerPanel" collapsed>
+    <calcite-flow id="layerFlow">
+      <calcite-flow-item heading="Layers" description="Toggle map layers">
+        <calcite-action icon="x" slot="header-actions-end" id="closePanel" text="Close"></calcite-action>
+        <calcite-tree id="layerTree" selection-mode="none">
+          <calcite-tree-item expanded>
+            <span>Active Incidents</span>
+            <calcite-tree slot="children">
+              <calcite-tree-item data-layer="fire"><calcite-icon icon="fire" scale="s"></calcite-icon> Fires
+                <calcite-switch slot="actions-end" checked data-layer="fire"></calcite-switch>
+              </calcite-tree-item>
+              <calcite-tree-item data-layer="flood"><calcite-icon icon="humidity" scale="s"></calcite-icon> Floods
+                <calcite-switch slot="actions-end" checked data-layer="flood"></calcite-switch>
+              </calcite-tree-item>
+              <calcite-tree-item data-layer="infrastructure"><calcite-icon icon="electricity" scale="s"></calcite-icon> Infrastructure
+                <calcite-switch slot="actions-end" checked data-layer="infrastructure"></calcite-switch>
+              </calcite-tree-item>
+              <calcite-tree-item data-layer="tornado"><calcite-icon icon="tornado" scale="s"></calcite-icon> Severe Weather
+                <calcite-switch slot="actions-end" checked data-layer="tornado"></calcite-switch>
+              </calcite-tree-item>
+            </calcite-tree>
+          </calcite-tree-item>
+          <calcite-tree-item>
+            <calcite-icon icon="organization" scale="s"></calcite-icon> Response Teams
+            <calcite-switch slot="actions-end" checked></calcite-switch>
+          </calcite-tree-item>
+          <calcite-tree-item>
+            <calcite-icon icon="polygon-vertices" scale="s"></calcite-icon> Evacuation Zones
+            <calcite-switch slot="actions-end"></calcite-switch>
+          </calcite-tree-item>
+          <calcite-tree-item>
+            <calcite-icon icon="road-sign" scale="s"></calcite-icon> Road Closures
+            <calcite-switch slot="actions-end"></calcite-switch>
+          </calcite-tree-item>
+        </calcite-tree>
+      </calcite-flow-item>
+    </calcite-flow>
+  </calcite-shell-panel>
+
+  <!-- === MAP === -->
+  <div id="viewDiv"></div>
+
+  <!-- === FLOATING ACTION PAD (top-right) === -->
+  <div class="action-pad-float">
+    <calcite-action-pad layout="vertical" expand-disabled>
+      <calcite-action-group>
+        <calcite-action id="btnLayers" icon="layers" text="Layers">
+          <calcite-tooltip slot="tooltip" placement="left">Layers</calcite-tooltip>
+        </calcite-action>
+        <calcite-action id="btnMeasure" icon="measure" text="Measure">
+          <calcite-tooltip slot="tooltip" placement="left">Measure</calcite-tooltip>
+        </calcite-action>
+        <calcite-action id="btnDraw" icon="pencil-mark" text="Draw">
+          <calcite-tooltip slot="tooltip" placement="left">Draw</calcite-tooltip>
+        </calcite-action>
+        <calcite-action id="btnGPS" icon="gps-on" text="GPS">
+          <calcite-tooltip slot="tooltip" placement="left">GPS</calcite-tooltip>
+        </calcite-action>
+        <calcite-action id="btnBasemap" icon="basemap" text="Basemap">
+          <calcite-tooltip slot="tooltip" placement="left">Basemap</calcite-tooltip>
+        </calcite-action>
+      </calcite-action-group>
+    </calcite-action-pad>
+  </div>
+
+  <!-- === BOTTOM SHEET (feature detail) === -->
+  <calcite-sheet id="featureSheet" display-mode="float" position="inline-end" label="Incident Detail" width-scale="m">
+    <div class="sheet-content" id="sheetContent">
+      <h2 class="sheet-heading" id="sheetTitle">—</h2>
+      <hr class="red-rule">
+      <div class="detail-grid">
+        <div><div class="detail-label">Type</div><div class="detail-value" id="sheetType">—</div></div>
+        <div><div class="detail-label">Severity</div><div class="detail-value" id="sheetSeverity">—</div></div>
+        <div><div class="detail-label">Time Reported</div><div class="detail-value" id="sheetTime">—</div></div>
+        <div><div class="detail-label">Status</div><div class="detail-value" id="sheetStatus">—</div></div>
+      </div>
+      <div id="sheetChipArea" style="margin-bottom: 14px;"></div>
+      <calcite-notice id="sheetNotice" open icon="information" scale="s" width="full">
+        <span slot="title" id="noticeTitle">—</span>
+        <span slot="message" id="noticeMessage">—</span>
+      </calcite-notice>
+      <div class="sheet-actions">
+        <calcite-button id="btnEditReport" icon-start="pencil" width="half">Edit Report</calcite-button>
+        <calcite-button id="btnCloseSheet" kind="neutral" icon-start="x" width="half" appearance="outline">Close</calcite-button>
+      </div>
+    </div>
+  </calcite-sheet>
+
+  <!-- === FAB (bottom-right) === -->
+  <div class="fab-float">
+    <calcite-fab id="fabReport" icon="plus" text="Report Incident" text-enabled></calcite-fab>
+  </div>
+
+  <!-- === NEW REPORT DIALOG === -->
+  <calcite-dialog id="reportDialog" heading="New Field Report" modal>
+    <div class="report-form">
+      <calcite-label>Location Description
+        <calcite-input id="inputLocation" placeholder="e.g., 500 block of Main St" icon="pin"></calcite-input>
+      </calcite-label>
+      <calcite-label>Incident Type
+        <calcite-select id="selectType">
+          <calcite-option value="fire">Fire</calcite-option>
+          <calcite-option value="flood">Flood</calcite-option>
+          <calcite-option value="infrastructure">Infrastructure</calcite-option>
+          <calcite-option value="tornado">Tornado</calcite-option>
+          <calcite-option value="other">Other</calcite-option>
+        </calcite-select>
+      </calcite-label>
+      <calcite-label>Severity
+        <calcite-select id="selectSeverity">
+          <calcite-option value="critical">Critical</calcite-option>
+          <calcite-option value="high">High</calcite-option>
+          <calcite-option value="medium">Medium</calcite-option>
+          <calcite-option value="low">Low</calcite-option>
+        </calcite-select>
+      </calcite-label>
+      <calcite-label>Notes
+        <calcite-text-area id="inputNotes" placeholder="Describe the situation..." rows="4"></calcite-text-area>
+      </calcite-label>
+    </div>
+    <calcite-button slot="footer-start" id="btnSubmitReport" icon-start="check" kind="brand">Submit Report</calcite-button>
+    <calcite-button slot="footer-end" id="btnCancelReport" kind="neutral" appearance="outline">Cancel</calcite-button>
+  </calcite-dialog>
+
+</calcite-shell>
+
+<script>
+require([
+  "esri/Map",
+  "esri/views/MapView",
+  "esri/Graphic",
+  "esri/layers/GraphicsLayer",
+  "esri/symbols/SimpleMarkerSymbol"
+], function(Map, MapView, Graphic, GraphicsLayer, SimpleMarkerSymbol) {
+
+  // --- Incident data ---
+  const incidents = [
+    {
+      name: "Structure Fire — Oak Street", type: "fire", severity: "high",
+      reported: "14:23", status: "active", city: "Houston, TX",
+      lat: 29.76, lon: -95.36,
+      notice: { title: "Active Response", message: "Engine 12 and Ladder 7 on scene. Two-alarm fire, residential structure. Evacuation of adjacent units in progress." }
+    },
+    {
+      name: "Flood Zone — River District", type: "flood", severity: "medium",
+      reported: "09:15", status: "monitoring", city: "Baton Rouge, LA",
+      lat: 30.45, lon: -91.19,
+      notice: { title: "Water Rising", message: "River stage at 31.2 ft, flood stage 30 ft. Sandbagging operations underway along River Road. 12 residences issued voluntary evacuation." }
+    },
+    {
+      name: "Power Outage — Grid Sector 7", type: "infrastructure", severity: "low",
+      reported: "11:40", status: "resolved", city: "Atlanta, GA",
+      lat: 33.75, lon: -84.39,
+      notice: { title: "Restored", message: "Power restored to 4,200 customers at 15:22. Cause: transformer failure from heat stress. Utility monitoring grid stability." }
+    },
+    {
+      name: "Tornado Damage — County Rd 4", type: "tornado", severity: "critical",
+      reported: "07:50", status: "active", city: "Oklahoma City, OK",
+      lat: 35.47, lon: -97.52,
+      notice: { title: "Critical — SAR Active", message: "EF-3 confirmed. 14 structures destroyed, 3 persons unaccounted for. Search and rescue teams deployed. Shelter opened at First Baptist Church." }
+    }
+  ];
+
+  const severityColors = { critical: "#ED1B2E", high: "#F97316", medium: "#EAB308", low: "#22C55E" };
+  const severitySize  = { critical: 16, high: 13, medium: 11, low: 10 };
+
+  // --- Map setup ---
+  const incidentLayer = new GraphicsLayer({ title: "Active Incidents" });
+
+  const map = new Map({ basemap: "streets-night-vector", layers: [incidentLayer] });
+  const view = new MapView({
+    container: "viewDiv", map: map,
+    center: [-98.5, 39.8], zoom: 4,
+    ui: { components: ["attribution"] },
+    popup: { autoOpenEnabled: false }
+  });
+
+  // --- Add incident graphics ---
+  incidents.forEach(function(inc, idx) {
+    const color = severityColors[inc.severity];
+    const size  = severitySize[inc.severity];
+    const isActive = inc.status === "active";
+
+    const symbol = {
+      type: "simple-marker",
+      color: color,
+      size: size,
+      outline: { color: "#ffffff", width: 2 }
+    };
+
+    // Active incidents get a second pulsing ring graphic
+    if (isActive) {
+      const pulseSymbol = {
+        type: "simple-marker",
+        color: [0, 0, 0, 0],
+        size: size + 16,
+        outline: { color: color, width: 2 }
+      };
+      incidentLayer.add(new Graphic({
+        geometry: { type: "point", longitude: inc.lon, latitude: inc.lat },
+        symbol: pulseSymbol,
+        attributes: { _pulse: true, _parentIdx: idx }
+      }));
+    }
+
+    incidentLayer.add(new Graphic({
+      geometry: { type: "point", longitude: inc.lon, latitude: inc.lat },
+      symbol: symbol,
+      attributes: { ...inc, _idx: idx }
+    }));
+  });
+
+  // --- Animated pulse via CSS overlay divs ---
+  const pulseOverlays = [];
+  view.when(function() {
+    incidents.forEach(function(inc) {
+      if (inc.status !== "active") return;
+      const dot = document.createElement("div");
+      dot.className = "pulse-dot";
+      dot.style.display = "none";
+      view.container.appendChild(dot);
+      pulseOverlays.push({ dot: dot, lon: inc.lon, lat: inc.lat });
+    });
+    updatePulsePositions();
+  });
+
+  function updatePulsePositions() {
+    pulseOverlays.forEach(function(p) {
+      const sp = view.toScreen({ type: "point", longitude: p.lon, latitude: p.lat });
+      if (sp) {
+        p.dot.style.left = (sp.x - 6) + "px";
+        p.dot.style.top  = (sp.y - 6) + "px";
+        p.dot.style.display = "block";
+      }
+    });
+  }
+  view.watch("extent", updatePulsePositions);
+  view.watch("zoom", updatePulsePositions);
+  view.on("resize", updatePulsePositions);
+
+  // --- Click map → open bottom sheet ---
+  const featureSheet  = document.getElementById("featureSheet");
+  const sheetTitle    = document.getElementById("sheetTitle");
+  const sheetType     = document.getElementById("sheetType");
+  const sheetSeverity = document.getElementById("sheetSeverity");
+  const sheetTime     = document.getElementById("sheetTime");
+  const sheetStatus   = document.getElementById("sheetStatus");
+  const sheetChipArea = document.getElementById("sheetChipArea");
+  const noticeTitle   = document.getElementById("noticeTitle");
+  const noticeMessage = document.getElementById("noticeMessage");
+  const sheetNotice   = document.getElementById("sheetNotice");
+
+  view.on("click", function(event) {
+    view.hitTest(event).then(function(response) {
+      const hit = response.results.find(function(r) {
+        return r.graphic && r.graphic.attributes && r.graphic.attributes._idx !== undefined;
+      });
+      if (!hit) return;
+      const attr = hit.graphic.attributes;
+      const inc = incidents[attr._idx];
+      openSheet(inc);
+    });
+  });
+
+  function openSheet(inc) {
+    sheetTitle.textContent    = inc.name;
+    sheetType.textContent     = inc.type.charAt(0).toUpperCase() + inc.type.slice(1);
+    sheetSeverity.textContent = inc.severity.charAt(0).toUpperCase() + inc.severity.slice(1);
+    sheetTime.textContent     = inc.reported;
+    sheetStatus.textContent   = inc.status.charAt(0).toUpperCase() + inc.status.slice(1);
+    noticeTitle.textContent   = inc.notice.title;
+    noticeMessage.textContent = inc.notice.message;
+
+    // Severity notice kind
+    const kindMap = { critical: "danger", high: "warning", medium: "warning", low: "success" };
+    sheetNotice.setAttribute("kind", kindMap[inc.severity] || "info");
+
+    // Severity chip
+    const chipKindMap = { critical: "danger", high: "warning", medium: "warning", low: "success" };
+    sheetChipArea.innerHTML = "";
+    const chip = document.createElement("calcite-chip");
+    chip.setAttribute("kind", chipKindMap[inc.severity] || "neutral");
+    chip.setAttribute("scale", "s");
+    chip.textContent = inc.severity.toUpperCase() + " SEVERITY";
+    sheetChipArea.appendChild(chip);
+
+    featureSheet.open = true;
+  }
+
+  document.getElementById("btnCloseSheet").addEventListener("click", function() { featureSheet.open = false; });
+  document.getElementById("btnEditReport").addEventListener("click", function() {
+    featureSheet.open = false;
+    reportDialog.open = true;
+  });
+
+  // --- Layer panel toggle ---
+  const layerPanel = document.getElementById("layerPanel");
+  const btnLayers  = document.getElementById("btnLayers");
+
+  btnLayers.addEventListener("click", function() {
+    layerPanel.collapsed = !layerPanel.collapsed;
+    btnLayers.active = !layerPanel.collapsed;
+  });
+  document.getElementById("closePanel").addEventListener("click", function() {
+    layerPanel.collapsed = true;
+    btnLayers.active = false;
+  });
+
+  // --- Layer switches toggle point visibility ---
+  document.querySelectorAll("calcite-switch[data-layer]").forEach(function(sw) {
+    sw.addEventListener("calciteSwitchChange", function() {
+      const layerType = sw.getAttribute("data-layer");
+      const visible = sw.checked;
+      incidentLayer.graphics.forEach(function(g) {
+        if (g.attributes && g.attributes.type === layerType) {
+          g.visible = visible;
+        }
+        // Also toggle pulse rings for active incidents of this type
+        if (g.attributes && g.attributes._pulse) {
+          const parent = incidents[g.attributes._parentIdx];
+          if (parent && parent.type === layerType) g.visible = visible;
+        }
+      });
+      // Toggle CSS pulse dots
+      pulseOverlays.forEach(function(p) {
+        const inc = incidents.find(function(i) { return i.lon === p.lon && i.lat === p.lat; });
+        if (inc && inc.type === layerType) p.dot.style.display = visible ? "block" : "none";
+      });
+    });
+  });
+
+  // --- FAB → open report dialog ---
+  const reportDialog = document.getElementById("reportDialog");
+  document.getElementById("fabReport").addEventListener("click", function() { reportDialog.open = true; });
+  document.getElementById("btnCancelReport").addEventListener("click", function() { reportDialog.open = false; });
+  document.getElementById("btnSubmitReport").addEventListener("click", function() {
+    const loc = document.getElementById("inputLocation").value;
+    const typ = document.getElementById("selectType").selectedOption?.value || "other";
+    const sev = document.getElementById("selectSeverity").selectedOption?.value || "medium";
+    const notes = document.getElementById("inputNotes").value;
+    if (!loc) {
+      document.getElementById("inputLocation").status = "invalid";
+      document.getElementById("inputLocation").setAttribute("validation-message", "Location is required");
+      return;
+    }
+    // Add to map at current center
+    const center = view.center;
+    const newInc = {
+      name: loc, type: typ, severity: sev,
+      reported: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }),
+      status: "active", city: "Field Report",
+      lat: center.latitude, lon: center.longitude,
+      notice: { title: "New Report", message: notes || "No additional details." }
+    };
+    incidents.push(newInc);
+    const idx = incidents.length - 1;
+    const color = severityColors[sev];
+    incidentLayer.add(new Graphic({
+      geometry: { type: "point", longitude: center.longitude, latitude: center.latitude },
+      symbol: { type: "simple-marker", color: color, size: severitySize[sev], outline: { color: "#fff", width: 2 } },
+      attributes: { ...newInc, _idx: idx }
+    }));
+    // Add pulse
+    const dot = document.createElement("div");
+    dot.className = "pulse-dot";
+    view.container.appendChild(dot);
+    pulseOverlays.push({ dot: dot, lon: center.longitude, lat: center.latitude });
+    updatePulsePositions();
+
+    // Update chip count
+    const activeCount = incidents.filter(function(i) { return i.status === "active"; }).length;
+    document.getElementById("reportCountChip").textContent = activeCount + " Active Reports";
+
+    // Reset and close
+    document.getElementById("inputLocation").value = "";
+    document.getElementById("inputNotes").value = "";
+    reportDialog.open = false;
+  });
+
+  // --- Theme toggle ---
+  let isDark = true;
+  document.getElementById("themeToggle").addEventListener("click", function() {
+    isDark = !isDark;
+    const shell = document.querySelector("calcite-shell");
+    if (isDark) {
+      shell.classList.add("calcite-mode-dark");
+      shell.classList.remove("calcite-mode-light");
+    } else {
+      shell.classList.remove("calcite-mode-dark");
+      shell.classList.add("calcite-mode-light");
+    }
+    document.getElementById("themeToggle").icon = isDark ? "brightness" : "moon";
+  });
+
+  // --- Basemap toggle ---
+  const basemaps = ["streets-night-vector", "dark-gray-vector", "satellite", "topo-vector"];
+  let basemapIdx = 0;
+  document.getElementById("btnBasemap").addEventListener("click", function() {
+    basemapIdx = (basemapIdx + 1) % basemaps.length;
+    map.basemap = basemaps[basemapIdx];
+  });
+
+  // --- GPS: zoom to user location ---
+  document.getElementById("btnGPS").addEventListener("click", function() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        view.goTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14 }, { duration: 1000 });
+      }, function() {
+        console.warn("Geolocation denied or unavailable.");
+      });
+    }
+  });
+
+  // --- Measure / Draw placeholders (visual toggle) ---
+  document.getElementById("btnMeasure").addEventListener("click", function() {
+    const btn = document.getElementById("btnMeasure");
+    btn.active = !btn.active;
+  });
+  document.getElementById("btnDraw").addEventListener("click", function() {
+    const btn = document.getElementById("btnDraw");
+    btn.active = !btn.active;
+  });
+
+});
+</script>
+</body>
+</html>

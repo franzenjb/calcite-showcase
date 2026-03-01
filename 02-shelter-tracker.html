@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shelter Tracker — Data Management Console</title>
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css">
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+Pro:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --calcite-color-brand: #ED1B2E;
+      --calcite-color-brand-hover: #C41225;
+      --calcite-color-brand-press: #A00E1E;
+      --brand-red: #ED1B2E;
+      --brand-hover: #C41225;
+      --brand-press: #A00E1E;
+      --cream: #f7f5f2;
+      --dark-bg: #1a1816;
+      --dark-surface: #2a2725;
+      --dark-text: #e8e4df;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+
+    calcite-shell { height: 100vh; }
+
+    calcite-navigation {
+      --calcite-color-brand: #ED1B2E;
+    }
+
+    /* Libre Baskerville for panel headings */
+    calcite-panel::part(heading) {
+      font-family: 'Libre Baskerville', serif;
+    }
+    calcite-navigation-logo {
+      --calcite-font-family: 'Libre Baskerville', serif;
+    }
+
+    /* Mono font for all numbers */
+    .mono { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+
+    /* Cream content area */
+    .content-area {
+      background: var(--cream);
+      padding: 20px;
+      min-height: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Red rule accent */
+    .section-heading {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 16px 0 12px 0;
+      padding-top: 4px;
+      position: relative;
+    }
+    .section-heading::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--brand-red);
+      margin-bottom: 8px;
+      border-radius: 0;
+    }
+
+    /* Sharp corners */
+    calcite-card { --calcite-border-radius: 2px; border-radius: 2px; }
+    calcite-chip { border-radius: 3px; }
+    calcite-button { border-radius: 2px; }
+
+    /* Card grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 4px 0;
+    }
+    .card-grid calcite-card {
+      border-radius: 4px;
+    }
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-meter-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    /* Table tweaks */
+    .table-wrap {
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #e0ddd8;
+      overflow: hidden;
+    }
+    .table-footer {
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+      border-top: 1px solid #e0ddd8;
+      background: white;
+    }
+
+    /* View toggle area */
+    .view-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Panel header toolbar */
+    .panel-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Dialog form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    /* Inline editable name styling */
+    calcite-inline-editable {
+      --calcite-internal-inline-editable-border-color: transparent;
+    }
+
+    /* Warm dark mode */
+    html[data-theme="dark"] {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+    html[data-theme="dark"] .content-area {
+      background: var(--dark-bg);
+    }
+    html[data-theme="dark"] .table-wrap {
+      background: var(--dark-surface);
+      border-color: #3a3735;
+    }
+    html[data-theme="dark"] .table-footer {
+      background: var(--dark-surface);
+      border-color: #3a3735;
+    }
+    html[data-theme="dark"] .card-meter-label {
+      color: #aaa;
+    }
+    html[data-theme="dark"] .form-group label {
+      color: var(--dark-text);
+    }
+    html[data-theme="dark"] .section-heading {
+      color: var(--dark-text);
+    }
+
+    /* Notice spacing */
+    .notice-bar { margin-bottom: 16px; }
+
+    /* Hidden helper */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<calcite-shell>
+
+  <!-- ===== TOP NAVIGATION ===== -->
+  <calcite-navigation slot="header">
+    <calcite-navigation-logo
+      slot="logo"
+      heading="Shelter Tracker"
+      description="Data Management Console"
+      icon="clipboard-check"
+    ></calcite-navigation-logo>
+
+    <calcite-action
+      slot="content-end"
+      id="themeToggle"
+      icon="brightness"
+      text="Toggle theme"
+      appearance="transparent"
+      scale="m"
+    ></calcite-action>
+    <calcite-navigation-user
+      slot="user"
+      full-name="Jeff Franzen"
+      username="jfranzen"
+    ></calcite-navigation-user>
+  </calcite-navigation>
+
+  <!-- ===== LEFT PANEL ===== -->
+  <calcite-shell-panel slot="panel-start" width-scale="l" position="start">
+    <calcite-panel heading="Shelter Roster" description="30 active shelters across 8 states">
+
+      <div slot="header-actions-end" class="panel-toolbar">
+        <calcite-button id="addShelterBtn" icon-start="plus" appearance="solid" kind="brand" scale="s">
+          Add Shelter
+        </calcite-button>
+      </div>
+
+      <div style="padding: 12px;">
+        <calcite-segmented-control id="viewToggle" width="full" scale="s">
+          <calcite-segmented-control-item value="table" checked>Table View</calcite-segmented-control-item>
+          <calcite-segmented-control-item value="cards">Card Grid</calcite-segmented-control-item>
+        </calcite-segmented-control>
+      </div>
+
+    </calcite-panel>
+  </calcite-shell-panel>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="content-area" id="mainContent">
+
+    <!-- Warning notice -->
+    <div class="notice-bar">
+      <calcite-notice open kind="warning" icon="exclamation-mark-triangle" scale="s" width="full">
+        <span slot="title">Capacity Warning</span>
+        <span slot="message">3 shelters approaching maximum capacity — review occupancy levels.</span>
+      </calcite-notice>
+    </div>
+
+    <!-- ===== TABLE VIEW ===== -->
+    <div id="tableView">
+      <div class="section-heading">Active Shelter Roster</div>
+      <div class="table-wrap">
+        <calcite-table striped caption="Shelter Roster" id="shelterTable">
+          <calcite-table-row slot="table-header">
+            <calcite-table-header heading="Name"></calcite-table-header>
+            <calcite-table-header heading="City"></calcite-table-header>
+            <calcite-table-header heading="State"></calcite-table-header>
+            <calcite-table-header heading="Type"></calcite-table-header>
+            <calcite-table-header heading="Capacity" alignment="center"></calcite-table-header>
+            <calcite-table-header heading="Occupancy" alignment="center"></calcite-table-header>
+            <calcite-table-header heading="Status" alignment="center"></calcite-table-header>
+            <calcite-table-header heading="Quality" alignment="center"></calcite-table-header>
+            <calcite-table-header heading="" alignment="center"></calcite-table-header>
+          </calcite-table-row>
+        </calcite-table>
+        <div class="table-footer">
+          <calcite-pagination id="tablePagination" page-size="10" total-items="30" start-item="1"></calcite-pagination>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CARD GRID VIEW ===== -->
+    <div id="cardView" class="hidden">
+      <div class="section-heading">Shelter Cards</div>
+      <div class="card-grid" id="cardGrid"></div>
+      <calcite-notice open kind="info" icon="information" scale="s" style="margin-top:16px;" width="full">
+        <span slot="message">Showing first 9 shelters. Switch to Table View for full pagination.</span>
+      </calcite-notice>
+    </div>
+
+  </div>
+
+  <!-- ===== ADD SHELTER DIALOG ===== -->
+  <calcite-dialog id="addDialog" heading="Add New Shelter" kind="brand" width-scale="s">
+    <div style="padding: 8px 0;">
+      <div class="form-group">
+        <label>Shelter Name *</label>
+        <calcite-input id="inputName" placeholder="e.g. Lincoln High School" required icon="home" status="idle"></calcite-input>
+        <calcite-input-message id="nameMessage" status="invalid" icon class="hidden">Name is required.</calcite-input-message>
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <calcite-select id="inputState" scale="m">
+          <calcite-option value="TX">Texas</calcite-option>
+          <calcite-option value="FL">Florida</calcite-option>
+          <calcite-option value="CA">California</calcite-option>
+          <calcite-option value="NC">North Carolina</calcite-option>
+          <calcite-option value="LA">Louisiana</calcite-option>
+          <calcite-option value="OK">Oklahoma</calcite-option>
+          <calcite-option value="GA">Georgia</calcite-option>
+          <calcite-option value="MO">Missouri</calcite-option>
+        </calcite-select>
+      </div>
+      <div class="form-group">
+        <label>City</label>
+        <calcite-input id="inputCity" placeholder="e.g. Houston" icon="pin"></calcite-input>
+      </div>
+      <div class="form-group">
+        <label>Shelter Type</label>
+        <calcite-select id="inputType" scale="m">
+          <calcite-option value="Standard">Standard</calcite-option>
+          <calcite-option value="Mega Shelter">Mega Shelter</calcite-option>
+          <calcite-option value="Emergency">Emergency</calcite-option>
+          <calcite-option value="Pet-Friendly">Pet-Friendly</calcite-option>
+        </calcite-select>
+      </div>
+      <div class="form-group">
+        <label>Capacity</label>
+        <calcite-input id="inputCapacity" type="number" placeholder="250" icon="users" min="10" max="2000"></calcite-input>
+      </div>
+      <div class="form-group">
+        <label>Initial Quality Rating</label>
+        <calcite-rating id="inputRating" scale="m" value="3"></calcite-rating>
+      </div>
+    </div>
+    <calcite-button slot="footer-start" id="cancelDialogBtn" appearance="outline" kind="neutral">Cancel</calcite-button>
+    <calcite-button slot="footer-end" id="saveDialogBtn" appearance="solid" kind="brand" icon-start="save">Save Shelter</calcite-button>
+  </calcite-dialog>
+
+  <!-- ===== DETAIL DIALOG ===== -->
+  <calcite-dialog id="detailDialog" heading="Shelter Detail" width-scale="s">
+    <div id="detailContent" style="padding:8px 0; font-family:'Source Sans Pro',sans-serif;"></div>
+    <calcite-button slot="footer-end" id="closeDetailBtn" appearance="solid" kind="brand">Close</calcite-button>
+  </calcite-dialog>
+
+  <!-- ===== SUCCESS ALERT ===== -->
+  <calcite-alert id="successAlert" kind="success" icon="check-circle" auto-close auto-close-duration="medium" placement="bottom-end">
+    <span slot="title">Shelter Saved</span>
+    <span slot="message">New shelter has been added to the roster.</span>
+  </calcite-alert>
+
+</calcite-shell>
+
+<script>
+  // ===================================================================
+  // DATA — 30 realistic shelters across 8 states
+  // ===================================================================
+  const shelters = [
+    { id:1,  name:"Lamar High School",              city:"Houston",        state:"TX", type:"Standard",      capacity:320, occupancy:274, status:"Open",    rating:4 },
+    { id:2,  name:"Travis County Expo Center",       city:"Austin",         state:"TX", type:"Mega Shelter",  capacity:580, occupancy:580, status:"Full",    rating:3 },
+    { id:3,  name:"Alamo Community Center",          city:"San Antonio",    state:"TX", type:"Pet-Friendly",  capacity:150, occupancy:88,  status:"Open",    rating:5 },
+    { id:4,  name:"Hillsborough High School",        city:"Tampa",          state:"FL", type:"Standard",      capacity:280, occupancy:231, status:"Open",    rating:3 },
+    { id:5,  name:"Palm Beach Convention Center",     city:"West Palm Beach",state:"FL", type:"Mega Shelter",  capacity:600, occupancy:142, status:"Open",    rating:4 },
+    { id:6,  name:"Orange County Convention Center",  city:"Orlando",        state:"FL", type:"Mega Shelter",  capacity:540, occupancy:540, status:"Full",    rating:4 },
+    { id:7,  name:"Pinellas Park Rec Center",         city:"St Petersburg",  state:"FL", type:"Pet-Friendly",  capacity:120, occupancy:0,   status:"Closed",  rating:2 },
+    { id:8,  name:"Sacramento Memorial Auditorium",   city:"Sacramento",     state:"CA", type:"Standard",      capacity:350, occupancy:198, status:"Open",    rating:4 },
+    { id:9,  name:"Anaheim Convention Center",        city:"Anaheim",        state:"CA", type:"Mega Shelter",  capacity:500, occupancy:467, status:"Open",    rating:5 },
+    { id:10, name:"San Jose Civic Center",            city:"San Jose",       state:"CA", type:"Emergency",     capacity:200, occupancy:0,   status:"Standby", rating:3 },
+    { id:11, name:"Fresno Fairgrounds",               city:"Fresno",         state:"CA", type:"Standard",      capacity:380, occupancy:291, status:"Open",    rating:3 },
+    { id:12, name:"Charlotte Convention Center",      city:"Charlotte",      state:"NC", type:"Mega Shelter",  capacity:480, occupancy:312, status:"Open",    rating:5 },
+    { id:13, name:"Durham Armory",                    city:"Durham",         state:"NC", type:"Emergency",     capacity:160, occupancy:0,   status:"Standby", rating:2 },
+    { id:14, name:"Raleigh Community Center",         city:"Raleigh",        state:"NC", type:"Standard",      capacity:240, occupancy:187, status:"Open",    rating:4 },
+    { id:15, name:"Fayetteville State Arena",         city:"Fayetteville",   state:"NC", type:"Standard",      capacity:300, occupancy:0,   status:"Closed",  rating:3 },
+    { id:16, name:"Baton Rouge River Center",         city:"Baton Rouge",    state:"LA", type:"Mega Shelter",  capacity:520, occupancy:408, status:"Open",    rating:4 },
+    { id:17, name:"New Orleans Convention Center",    city:"New Orleans",    state:"LA", type:"Mega Shelter",  capacity:600, occupancy:594, status:"Full",    rating:3 },
+    { id:18, name:"Lafayette Cajundome",              city:"Lafayette",      state:"LA", type:"Standard",      capacity:340, occupancy:0,   status:"Standby", rating:4 },
+    { id:19, name:"Shreveport Convention Center",     city:"Shreveport",     state:"LA", type:"Standard",      capacity:260, occupancy:134, status:"Open",    rating:3 },
+    { id:20, name:"Oklahoma City Fairgrounds",        city:"Oklahoma City",  state:"OK", type:"Mega Shelter",  capacity:450, occupancy:312, status:"Open",    rating:4 },
+    { id:21, name:"Tulsa Expo Center",                city:"Tulsa",          state:"OK", type:"Standard",      capacity:280, occupancy:265, status:"Open",    rating:3 },
+    { id:22, name:"Norman Community Center",          city:"Norman",         state:"OK", type:"Pet-Friendly",  capacity:100, occupancy:0,   status:"Standby", rating:3 },
+    { id:23, name:"Georgia World Congress Center",    city:"Atlanta",        state:"GA", type:"Mega Shelter",  capacity:580, occupancy:423, status:"Open",    rating:5 },
+    { id:24, name:"Savannah Civic Center",            city:"Savannah",       state:"GA", type:"Standard",      capacity:220, occupancy:189, status:"Open",    rating:3 },
+    { id:25, name:"Augusta Convention Center",        city:"Augusta",        state:"GA", type:"Emergency",     capacity:180, occupancy:0,   status:"Standby", rating:2 },
+    { id:26, name:"Kansas City Convention Center",    city:"Kansas City",    state:"MO", type:"Mega Shelter",  capacity:460, occupancy:460, status:"Full",    rating:4 },
+    { id:27, name:"St Louis Community Center",        city:"St Louis",       state:"MO", type:"Standard",      capacity:200, occupancy:156, status:"Open",    rating:3 },
+    { id:28, name:"Springfield Expo Center",          city:"Springfield",    state:"MO", type:"Standard",      capacity:260, occupancy:0,   status:"Closed",  rating:2 },
+    { id:29, name:"Laredo Civic Center",              city:"Laredo",         state:"TX", type:"Emergency",     capacity:180, occupancy:112, status:"Open",    rating:3 },
+    { id:30, name:"Pensacola Bay Center",             city:"Pensacola",      state:"FL", type:"Standard",      capacity:310, occupancy:247, status:"Open",    rating:4 },
+  ];
+
+  // ===================================================================
+  // HELPERS
+  // ===================================================================
+  function statusChip(status) {
+    const kinds = { Open:"brand", Full:"danger", Closed:"neutral", Standby:"warning" };
+    return `<calcite-chip scale="s" kind="${kinds[status]}" appearance="solid">${status}</calcite-chip>`;
+  }
+
+  function pctLabel(occ, cap) {
+    if (cap === 0) return "0%";
+    return Math.round((occ / cap) * 100) + "%";
+  }
+
+  // ===================================================================
+  // BUILD TABLE ROWS
+  // ===================================================================
+  const tableEl = document.getElementById("shelterTable");
+
+  shelters.forEach((s, i) => {
+    const row = document.createElement("calcite-table-row");
+    row.dataset.index = i;
+    row.innerHTML = `
+      <calcite-table-cell>
+        <calcite-inline-editable>
+          <calcite-input value="${s.name}" scale="s" alignment="start"></calcite-input>
+        </calcite-inline-editable>
+      </calcite-table-cell>
+      <calcite-table-cell>${s.city}</calcite-table-cell>
+      <calcite-table-cell>${s.state}</calcite-table-cell>
+      <calcite-table-cell>${s.type}</calcite-table-cell>
+      <calcite-table-cell alignment="center">
+        <span class="mono">${s.capacity}</span>
+      </calcite-table-cell>
+      <calcite-table-cell alignment="center">
+        <calcite-meter
+          fill-type="single"
+          value="${s.occupancy}"
+          min="0"
+          max="${s.capacity}"
+          scale="s"
+          appearance="outline-fill"
+          style="min-width:90px;"
+        ></calcite-meter>
+        <div class="mono" style="font-size:0.78rem; margin-top:2px; color:#666;">
+          ${s.occupancy} / ${s.capacity} (${pctLabel(s.occupancy, s.capacity)})
+        </div>
+      </calcite-table-cell>
+      <calcite-table-cell alignment="center">${statusChip(s.status)}</calcite-table-cell>
+      <calcite-table-cell alignment="center">
+        <calcite-rating value="${s.rating}" read-only scale="s"></calcite-rating>
+      </calcite-table-cell>
+      <calcite-table-cell alignment="center">
+        <calcite-button
+          scale="s"
+          appearance="outline"
+          kind="neutral"
+          icon-start="view-visible"
+          data-id="${s.id}"
+          class="viewBtn"
+        >View</calcite-button>
+      </calcite-table-cell>
+    `;
+    tableEl.appendChild(row);
+  });
+
+  // ===================================================================
+  // PAGINATION
+  // ===================================================================
+  const pagination = document.getElementById("tablePagination");
+  const allRows = tableEl.querySelectorAll("calcite-table-row:not([slot])");
+
+  function applyPagination(startItem) {
+    const pageStart = startItem - 1; // 0-indexed
+    allRows.forEach((row, i) => {
+      row.classList.toggle("hidden", i < pageStart || i >= pageStart + 10);
+    });
+  }
+  // Initial page
+  applyPagination(1);
+
+  pagination.addEventListener("calcitePaginationChange", (e) => {
+    applyPagination(e.target.startItem);
+  });
+
+  // ===================================================================
+  // CARD GRID
+  // ===================================================================
+  const cardGrid = document.getElementById("cardGrid");
+
+  shelters.slice(0, 9).forEach(s => {
+    const card = document.createElement("calcite-card");
+    card.innerHTML = `
+      <span slot="heading">${s.name}</span>
+      <span slot="description">${s.city}, ${s.state}</span>
+      <div class="card-content">
+        <div>
+          <div class="card-meter-label">Occupancy: <span class="mono">${s.occupancy}</span> / <span class="mono">${s.capacity}</span></div>
+          <calcite-meter
+            fill-type="single"
+            value="${s.occupancy}"
+            min="0"
+            max="${s.capacity}"
+            scale="s"
+            appearance="outline-fill"
+            style="width:100%; margin-top:4px;"
+          ></calcite-meter>
+        </div>
+        <div class="card-row">
+          ${statusChip(s.status)}
+          <calcite-chip scale="s" kind="neutral" appearance="outline">${s.type}</calcite-chip>
+        </div>
+        <div class="card-row">
+          <calcite-rating value="${s.rating}" read-only scale="s"></calcite-rating>
+        </div>
+      </div>
+    `;
+    cardGrid.appendChild(card);
+  });
+
+  // ===================================================================
+  // VIEW TOGGLE (table ↔ cards)
+  // ===================================================================
+  const viewToggle = document.getElementById("viewToggle");
+  const tableView = document.getElementById("tableView");
+  const cardView = document.getElementById("cardView");
+
+  viewToggle.addEventListener("calciteSegmentedControlChange", () => {
+    const selected = viewToggle.querySelector("[checked]");
+    if (selected && selected.value === "cards") {
+      tableView.classList.add("hidden");
+      cardView.classList.remove("hidden");
+    } else {
+      tableView.classList.remove("hidden");
+      cardView.classList.add("hidden");
+    }
+  });
+
+  // ===================================================================
+  // ADD SHELTER DIALOG
+  // ===================================================================
+  const addDialog = document.getElementById("addDialog");
+  const addBtn = document.getElementById("addShelterBtn");
+  const cancelBtn = document.getElementById("cancelDialogBtn");
+  const saveBtn = document.getElementById("saveDialogBtn");
+  const successAlert = document.getElementById("successAlert");
+  const nameInput = document.getElementById("inputName");
+  const nameMsg = document.getElementById("nameMessage");
+
+  addBtn.addEventListener("click", () => { addDialog.open = true; });
+  cancelBtn.addEventListener("click", () => { addDialog.open = false; resetForm(); });
+
+  addDialog.addEventListener("calciteDialogClose", () => { resetForm(); });
+
+  saveBtn.addEventListener("click", () => {
+    const name = nameInput.value?.trim();
+    if (!name) {
+      nameInput.status = "invalid";
+      nameMsg.classList.remove("hidden");
+      return;
+    }
+    addDialog.open = false;
+    resetForm();
+    successAlert.open = true;
+  });
+
+  function resetForm() {
+    nameInput.value = "";
+    nameInput.status = "idle";
+    nameMsg.classList.add("hidden");
+    document.getElementById("inputCity").value = "";
+    document.getElementById("inputCapacity").value = "";
+    document.getElementById("inputRating").value = 3;
+  }
+
+  // ===================================================================
+  // DETAIL DIALOG
+  // ===================================================================
+  const detailDialog = document.getElementById("detailDialog");
+  const detailContent = document.getElementById("detailContent");
+  const closeDetailBtn = document.getElementById("closeDetailBtn");
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".viewBtn");
+    if (!btn) return;
+    const id = parseInt(btn.dataset.id);
+    const s = shelters.find(sh => sh.id === id);
+    if (!s) return;
+
+    detailDialog.heading = s.name;
+    detailContent.innerHTML = `
+      <div style="margin-bottom:12px;">${statusChip(s.status)}</div>
+      <table style="width:100%; border-collapse:collapse; font-family:'Source Sans Pro',sans-serif;">
+        <tr><td style="padding:6px 12px 6px 0; font-weight:600; color:#666;">Location</td>
+            <td style="padding:6px 0;">${s.city}, ${s.state}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0; font-weight:600; color:#666;">Type</td>
+            <td style="padding:6px 0;">${s.type}</td></tr>
+        <tr><td style="padding:6px 12px 6px 0; font-weight:600; color:#666;">Capacity</td>
+            <td style="padding:6px 0;"><span class="mono">${s.capacity}</span></td></tr>
+        <tr><td style="padding:6px 12px 6px 0; font-weight:600; color:#666;">Occupancy</td>
+            <td style="padding:6px 0;"><span class="mono">${s.occupancy}</span> (<span class="mono">${pctLabel(s.occupancy, s.capacity)}</span>)</td></tr>
+        <tr><td style="padding:6px 12px 6px 0; font-weight:600; color:#666;">Quality</td>
+            <td style="padding:6px 0;"><calcite-rating value="${s.rating}" read-only scale="s"></calcite-rating></td></tr>
+      </table>
+      <div style="margin-top:14px;">
+        <calcite-meter
+          fill-type="single"
+          value="${s.occupancy}"
+          min="0"
+          max="${s.capacity}"
+          scale="m"
+          appearance="outline-fill"
+          style="width:100%;"
+        ></calcite-meter>
+      </div>
+    `;
+    detailDialog.open = true;
+  });
+
+  closeDetailBtn.addEventListener("click", () => { detailDialog.open = false; });
+
+  // ===================================================================
+  // THEME TOGGLE (light ↔ warm dark)
+  // ===================================================================
+  const themeToggle = document.getElementById("themeToggle");
+  let darkMode = false;
+
+  themeToggle.addEventListener("click", () => {
+    darkMode = !darkMode;
+    const html = document.documentElement;
+    if (darkMode) {
+      html.setAttribute("data-theme", "dark");
+      document.querySelector("calcite-shell").setAttribute("mode", "dark");
+      html.classList.add("calcite-mode-dark");
+      themeToggle.icon = "moon";
+    } else {
+      html.removeAttribute("data-theme");
+      document.querySelector("calcite-shell").removeAttribute("mode");
+      html.classList.remove("calcite-mode-dark");
+      themeToggle.icon = "brightness";
+    }
+  });
+</script>
+
+</body>
+</html>

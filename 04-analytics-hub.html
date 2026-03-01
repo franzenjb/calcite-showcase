@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Hub — Dragon × Calcite Showcase</title>
+
+  <!-- Calcite Components -->
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css">
+
+  <!-- Dragon Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+Pro:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Brand Tokens ── */
+    :root {
+      --calcite-color-brand: #ED1B2E;
+      --calcite-color-brand-hover: #C41225;
+      --calcite-color-brand-press: #A00E1E;
+      --dragon-red: #ED1B2E;
+      --dragon-cream: #f7f5f2;
+      --dragon-text: #1a1a1a;
+      --dragon-text-secondary: #5a5550;
+      --dragon-border: #e2ddd7;
+      --dragon-dark-bg: #1a1816;
+      --dragon-dark-surface: #252220;
+      --dragon-dark-border: #3a3632;
+      --dragon-dark-text: #e8e4df;
+      --dragon-dark-secondary: #a09890;
+    }
+
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: "Source Sans Pro", sans-serif;
+      color: var(--dragon-text);
+    }
+
+    /* ── Typography Classes ── */
+    .heading-serif {
+      font-family: "Libre Baskerville", Georgia, serif;
+      font-weight: 700;
+      color: var(--dragon-text);
+    }
+    .mono {
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    /* ── Red Rule Accent ── */
+    .red-rule::before {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 3px;
+      background: var(--dragon-red);
+      margin-bottom: 10px;
+    }
+
+    /* ── Cream Content Area ── */
+    .content-area {
+      background: var(--dragon-cream);
+      min-height: calc(100vh - 56px);
+      padding: 28px 36px 48px;
+    }
+
+    /* ── KPI Tile Grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .kpi-tile {
+      background: #fff;
+      border: 1px solid var(--dragon-border);
+      border-radius: 3px;
+      padding: 22px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: box-shadow 0.15s;
+    }
+    .kpi-tile:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .kpi-tile.highlighted {
+      border-left: 3px solid var(--dragon-red);
+      padding-left: 17px;
+    }
+    .kpi-icon {
+      flex-shrink: 0;
+      color: var(--dragon-red);
+      --calcite-ui-icon-color: var(--dragon-red);
+    }
+    .kpi-value {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dragon-text);
+      line-height: 1.1;
+    }
+    .kpi-label {
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--dragon-text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ── Section Headings ── */
+    .section-heading {
+      font-family: "Libre Baskerville", Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 36px 0 0;
+    }
+    .section-heading:first-child { margin-top: 0; }
+
+    /* ── Stepper Overrides ── */
+    calcite-stepper {
+      margin-top: 20px;
+    }
+
+    /* ── Calendar Heatmap ── */
+    .heatmap-wrapper {
+      background: #fff;
+      border: 1px solid var(--dragon-border);
+      border-radius: 3px;
+      padding: 24px 28px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    .heatmap-container {
+      display: flex;
+      gap: 8px;
+    }
+    .heatmap-day-labels {
+      display: grid;
+      grid-template-rows: repeat(7, 13px);
+      gap: 2px;
+      padding-top: 20px;
+    }
+    .heatmap-day-labels span {
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 10px;
+      color: var(--dragon-text-secondary);
+      line-height: 13px;
+      text-align: right;
+      padding-right: 4px;
+    }
+    .heatmap-grid-wrapper {
+      position: relative;
+    }
+    .heatmap-months {
+      display: flex;
+      height: 20px;
+      position: relative;
+    }
+    .heatmap-months span {
+      position: absolute;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 10px;
+      color: var(--dragon-text-secondary);
+    }
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(53, 13px);
+      grid-template-rows: repeat(7, 13px);
+      gap: 2px;
+    }
+    .heatmap-cell {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: outline 0.1s;
+    }
+    .heatmap-cell:hover {
+      outline: 2px solid var(--dragon-red);
+      outline-offset: -1px;
+    }
+    .heat-0 { background: var(--dragon-cream); }
+    .heat-1 { background: rgba(237, 27, 46, 0.15); }
+    .heat-2 { background: rgba(237, 27, 46, 0.35); }
+    .heat-3 { background: rgba(237, 27, 46, 0.55); }
+    .heat-4 { background: rgba(237, 27, 46, 0.8); }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 14px;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 11px;
+      color: var(--dragon-text-secondary);
+    }
+    .heatmap-legend .swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+    }
+
+    .heatmap-stats {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      color: var(--dragon-text-secondary);
+      margin-top: 12px;
+      letter-spacing: -0.2px;
+    }
+    .heatmap-stats span { color: var(--dragon-text); font-weight: 500; }
+
+    /* ── Tooltip ── */
+    .heatmap-tooltip {
+      position: fixed;
+      background: #1a1a1a;
+      color: #fff;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .heatmap-tooltip.visible { opacity: 1; }
+    .heatmap-tooltip .tt-count {
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 500;
+      color: #f7c4c8;
+    }
+
+    /* ── Data Table Section ── */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin: 20px 0 16px;
+    }
+    .filter-bar .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .filter-bar .filter-group label {
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--dragon-text-secondary);
+    }
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      margin-left: auto;
+    }
+    .sort-indicator { font-size: 11px; margin-left: 4px; }
+
+    /* ── Accordion ── */
+    .accordion-section {
+      margin-top: 48px;
+    }
+
+    /* ── Dark Mode ── */
+    html[data-theme="dark"] {
+      --dragon-cream: #1a1816;
+      --dragon-text: #e8e4df;
+      --dragon-text-secondary: #a09890;
+      --dragon-border: #3a3632;
+    }
+    html[data-theme="dark"] body {
+      background: var(--dragon-dark-bg);
+      color: var(--dragon-dark-text);
+    }
+    html[data-theme="dark"] .content-area {
+      background: var(--dragon-dark-bg);
+    }
+    html[data-theme="dark"] .kpi-tile,
+    html[data-theme="dark"] .heatmap-wrapper {
+      background: var(--dragon-dark-surface);
+      border-color: var(--dragon-dark-border);
+    }
+    html[data-theme="dark"] .kpi-value {
+      color: var(--dragon-dark-text);
+    }
+    html[data-theme="dark"] .heat-0 {
+      background: var(--dragon-dark-surface);
+    }
+    html[data-theme="dark"] .heatmap-tooltip {
+      background: #e8e4df;
+      color: #1a1816;
+    }
+    html[data-theme="dark"] .heatmap-tooltip .tt-count {
+      color: var(--dragon-red);
+    }
+    html[data-theme="dark"] .heading-serif,
+    html[data-theme="dark"] .section-heading {
+      color: var(--dragon-dark-text);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .content-area { padding: 20px 16px 36px; }
+    }
+    @media (max-width: 540px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <calcite-shell>
+
+    <!-- ── Navigation ── -->
+    <calcite-navigation slot="header">
+      <calcite-navigation-logo
+        slot="logo"
+        heading="Analytics Hub"
+        description="Incident Intelligence"
+        icon="graph-bar-side-by-side">
+      </calcite-navigation-logo>
+      <calcite-action
+        slot="content-end"
+        id="theme-toggle"
+        icon="moon"
+        text="Toggle dark mode"
+        appearance="transparent">
+      </calcite-action>
+      <calcite-navigation-user
+        slot="user"
+        full-name="Jeff Franzen"
+        thumbnail="">
+      </calcite-navigation-user>
+    </calcite-navigation>
+
+    <!-- ── Main Content ── -->
+    <div class="content-area">
+
+      <calcite-tabs layout="center">
+        <calcite-tab-nav slot="title-group">
+          <calcite-tab-title selected icon-start="graph-bar">Overview</calcite-tab-title>
+          <calcite-tab-title icon-start="calendar">Calendar</calcite-tab-title>
+          <calcite-tab-title icon-start="table">Data Table</calcite-tab-title>
+        </calcite-tab-nav>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  TAB 1: OVERVIEW                            -->
+        <!-- ════════════════════════════════════════════ -->
+        <calcite-tab selected>
+          <h2 class="section-heading red-rule">Key Performance Indicators</h2>
+
+          <div class="kpi-grid">
+            <div class="kpi-tile highlighted">
+              <calcite-icon class="kpi-icon" icon="exclamation-mark-triangle" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">847</div>
+                <div class="kpi-label">Total Incidents</div>
+              </div>
+            </div>
+            <div class="kpi-tile">
+              <calcite-icon class="kpi-icon" icon="clock" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">12.4<span style="font-size:16px"> min</span></div>
+                <div class="kpi-label">Avg Response Time</div>
+              </div>
+            </div>
+            <div class="kpi-tile">
+              <calcite-icon class="kpi-icon" icon="organization" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">23</div>
+                <div class="kpi-label">Active Operations</div>
+              </div>
+            </div>
+            <div class="kpi-tile">
+              <calcite-icon class="kpi-icon" icon="users" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">1,247</div>
+                <div class="kpi-label">Volunteers Deployed</div>
+              </div>
+            </div>
+            <div class="kpi-tile">
+              <calcite-icon class="kpi-icon" icon="home" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">34</div>
+                <div class="kpi-label">Shelters Open</div>
+              </div>
+            </div>
+            <div class="kpi-tile">
+              <calcite-icon class="kpi-icon" icon="check-circle" scale="l"></calcite-icon>
+              <div>
+                <div class="kpi-value">94.2<span style="font-size:16px">%</span></div>
+                <div class="kpi-label">Resolution Rate</div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-heading red-rule">Incident Lifecycle</h2>
+
+          <calcite-stepper numbered>
+            <calcite-stepper-item heading="Detection" description="Incident identified & logged" complete>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Assessment" description="Severity & scope evaluated" complete>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Mobilization" description="Resources deployed to scene" complete>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Operations" description="Active response underway" selected>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Recovery" description="Transition to long-term support">
+            </calcite-stepper-item>
+          </calcite-stepper>
+        </calcite-tab>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  TAB 2: CALENDAR HEATMAP                    -->
+        <!-- ════════════════════════════════════════════ -->
+        <calcite-tab>
+          <h2 class="section-heading red-rule">2024 Incident Activity</h2>
+
+          <div class="heatmap-wrapper">
+            <div class="heatmap-container">
+              <div class="heatmap-day-labels">
+                <span></span>
+                <span>Mon</span>
+                <span></span>
+                <span>Wed</span>
+                <span></span>
+                <span>Fri</span>
+                <span></span>
+              </div>
+              <div class="heatmap-grid-wrapper">
+                <div class="heatmap-months" id="heatmap-months"></div>
+                <div class="heatmap-grid" id="heatmap-grid"></div>
+              </div>
+            </div>
+
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <div class="swatch heat-0"></div>
+              <div class="swatch heat-1"></div>
+              <div class="swatch heat-2"></div>
+              <div class="swatch heat-3"></div>
+              <div class="swatch heat-4"></div>
+              <span>More</span>
+            </div>
+
+            <div class="heatmap-stats" id="heatmap-stats"></div>
+          </div>
+
+          <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
+        </calcite-tab>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  TAB 3: DATA TABLE                          -->
+        <!-- ════════════════════════════════════════════ -->
+        <calcite-tab>
+          <h2 class="section-heading red-rule">Incident Log</h2>
+
+          <div class="filter-bar">
+            <div class="filter-group">
+              <label>Date Range</label>
+              <calcite-input-date-picker id="date-filter" layout="horizontal" range></calcite-input-date-picker>
+            </div>
+            <div class="filter-group">
+              <label>Type</label>
+              <calcite-select id="type-filter" width="auto">
+                <calcite-option value="All">All Types</calcite-option>
+                <calcite-option value="Fire">Fire</calcite-option>
+                <calcite-option value="Flood">Flood</calcite-option>
+                <calcite-option value="Tornado">Tornado</calcite-option>
+                <calcite-option value="Infrastructure">Infrastructure</calcite-option>
+                <calcite-option value="Medical">Medical</calcite-option>
+              </calcite-select>
+            </div>
+            <div class="filter-group">
+              <label>Severity</label>
+              <calcite-select id="severity-filter" width="auto">
+                <calcite-option value="All">All Severities</calcite-option>
+                <calcite-option value="Critical">Critical</calcite-option>
+                <calcite-option value="High">High</calcite-option>
+                <calcite-option value="Medium">Medium</calcite-option>
+                <calcite-option value="Low">Low</calcite-option>
+              </calcite-select>
+            </div>
+            <div class="filter-actions">
+              <calcite-button id="apply-filter" icon-start="filter" appearance="solid" scale="s">Apply</calcite-button>
+              <calcite-button id="reset-filter" icon-start="reset" appearance="outline-fill" scale="s" kind="neutral">Reset</calcite-button>
+            </div>
+          </div>
+
+          <calcite-table striped id="incident-table">
+            <calcite-table-row slot="table-header">
+              <calcite-table-header heading="Date" data-sort="date" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Incident ID" data-sort="id" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Type" data-sort="type" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Location" data-sort="location" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Severity" data-sort="severity" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Response" data-sort="response" style="cursor:pointer"></calcite-table-header>
+              <calcite-table-header heading="Status" data-sort="status" style="cursor:pointer"></calcite-table-header>
+            </calcite-table-row>
+          </calcite-table>
+        </calcite-tab>
+      </calcite-tabs>
+
+      <!-- ── Accordion ── -->
+      <div class="accordion-section">
+        <calcite-accordion scale="l">
+          <calcite-accordion-item heading="Methodology" icon-start="information">
+            <p style="font-family:'Source Sans Pro',sans-serif; color:var(--dragon-text-secondary); line-height:1.65; margin:0;">
+              Incident data is aggregated from verified field reports submitted through the Red Cross Disaster Operations
+              system. Each incident is geocoded, classified by type and severity, then validated by regional coordinators
+              within 24 hours of initial submission. Response times are measured from first alert to first responder
+              arrival on scene. Resolution rate tracks incidents moved to "Resolved" or "Monitoring" status within
+              the reporting period.
+            </p>
+          </calcite-accordion-item>
+          <calcite-accordion-item heading="Data Sources" icon-start="data-check">
+            <ul style="font-family:'Source Sans Pro',sans-serif; color:var(--dragon-text-secondary); line-height:1.8; margin:0; padding-left:20px;">
+              <li>FEMA National Incident Management System (NIMS)</li>
+              <li>NOAA Storm Events Database</li>
+              <li>Local Emergency Operations Centers (EOCs) — 218 chapters</li>
+              <li>Red Cross Disaster Operations Center (DOC)</li>
+              <li>National Weather Service alerts feed</li>
+              <li>US Fire Administration (USFA) incident reports</li>
+            </ul>
+          </calcite-accordion-item>
+          <calcite-accordion-item heading="About This Dashboard" icon-start="bookmark">
+            <p style="font-family:'Source Sans Pro',sans-serif; color:var(--dragon-text-secondary); line-height:1.65; margin:0;">
+              Analytics Hub is part of the <a href="index.html" style="color:var(--dragon-red);">Dragon × Calcite Showcase</a>,
+              demonstrating how Esri's Calcite Design System components combine with editorial typography and warm
+              color treatment to build data-rich analytical interfaces. This page uses zero maps — proving that Calcite
+              excels far beyond cartography.
+            </p>
+          </calcite-accordion-item>
+        </calcite-accordion>
+      </div>
+
+    </div><!-- .content-area -->
+
+    <!-- Filter alert -->
+    <calcite-alert id="filter-alert" kind="brand" icon="filter" auto-close auto-close-duration="fast" placement="bottom-end">
+      <div slot="title">Filters Applied</div>
+      <div slot="message" id="filter-alert-msg">Table updated with selected criteria.</div>
+    </calcite-alert>
+
+  </calcite-shell>
+
+  <script>
+    // ═══════════════════════════════════════════════════
+    //  THEME TOGGLE
+    // ═══════════════════════════════════════════════════
+    const themeToggle = document.getElementById("theme-toggle");
+    themeToggle.addEventListener("click", () => {
+      const html = document.documentElement;
+      const isDark = html.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        html.removeAttribute("data-theme");
+        html.classList.remove("calcite-mode-dark");
+        themeToggle.icon = "moon";
+      } else {
+        html.setAttribute("data-theme", "dark");
+        html.classList.add("calcite-mode-dark");
+        themeToggle.icon = "brightness";
+      }
+    });
+
+    // ═══════════════════════════════════════════════════
+    //  CALENDAR HEATMAP
+    // ═══════════════════════════════════════════════════
+    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // Seeded random for consistent data
+    function seededRandom(seed) {
+      let s = seed;
+      return function() {
+        s = (s * 16807 + 0) % 2147483647;
+        return s / 2147483647;
+      };
+    }
+    const rand = seededRandom(2024);
+
+    // Generate 366 days of data (2024 is a leap year)
+    const startDate = new Date(2024, 0, 1); // Jan 1, 2024
+    const heatmapData = [];
+    let totalIncidents = 0;
+    let busiestDay = { count: 0, date: null };
+
+    for (let i = 0; i < 366; i++) {
+      const date = new Date(2024, 0, 1 + i);
+      if (date.getFullYear() > 2024) break;
+      // Natural distribution: weighted toward lower numbers
+      const r = rand() * rand();
+      const count = Math.floor(r * 13);
+      totalIncidents += count;
+      if (count > busiestDay.count) {
+        busiestDay = { count, date: new Date(date) };
+      }
+      heatmapData.push({ date: new Date(date), count });
+    }
+
+    // Build the grid
+    const grid = document.getElementById("heatmap-grid");
+    const tooltip = document.getElementById("heatmap-tooltip");
+    const monthsRow = document.getElementById("heatmap-months");
+
+    // First day of 2024 is Monday (day index 1)
+    const firstDayOfWeek = startDate.getDay(); // 0=Sun..6=Sat
+
+    // Track month positions for labels
+    const monthPositions = {};
+
+    heatmapData.forEach((entry, i) => {
+      const dayOfYear = i;
+      const dayOfWeek = entry.date.getDay();
+      const weekNum = Math.floor((dayOfYear + firstDayOfWeek) / 7);
+      const month = entry.date.getMonth();
+
+      // Record first week of each month
+      if (!(month in monthPositions)) {
+        monthPositions[month] = weekNum;
+      }
+
+      const heatLevel = entry.count === 0 ? 0
+        : entry.count <= 2 ? 1
+        : entry.count <= 5 ? 2
+        : entry.count <= 8 ? 3 : 4;
+
+      const cell = document.createElement("div");
+      cell.className = `heatmap-cell heat-${heatLevel}`;
+      cell.style.gridColumn = weekNum + 1;
+      cell.style.gridRow = dayOfWeek + 1;
+      cell.dataset.date = entry.date.toISOString().slice(0, 10);
+      cell.dataset.count = entry.count;
+      cell.dataset.dayName = DAYS[dayOfWeek];
+      cell.dataset.monthName = MONTHS[month];
+      cell.dataset.dayNum = entry.date.getDate();
+
+      // Tooltip events
+      cell.addEventListener("mouseenter", (e) => {
+        const d = cell.dataset;
+        tooltip.innerHTML = `<span class="tt-count">${d.count} incident${d.count !== "1" ? "s" : ""}</span> on ${d.dayName}, ${d.monthName} ${d.dayNum}`;
+        tooltip.classList.add("visible");
+      });
+      cell.addEventListener("mousemove", (e) => {
+        tooltip.style.left = (e.clientX + 12) + "px";
+        tooltip.style.top = (e.clientY - 36) + "px";
+      });
+      cell.addEventListener("mouseleave", () => {
+        tooltip.classList.remove("visible");
+      });
+
+      // Click to filter
+      cell.addEventListener("click", () => {
+        const dateStr = cell.dataset.date;
+        const count = cell.dataset.count;
+        console.log(`Selected ${dateStr}: ${count} incidents`);
+        // Switch to data table tab filtered to this date
+        const tabs = document.querySelector("calcite-tabs");
+        const tabTitles = document.querySelectorAll("calcite-tab-title");
+        tabTitles[2].click(); // switch to Data Table tab
+      });
+
+      grid.appendChild(cell);
+    });
+
+    // Month labels
+    Object.entries(monthPositions).forEach(([month, week]) => {
+      const label = document.createElement("span");
+      label.textContent = MONTHS[parseInt(month)];
+      label.style.left = (week * 15) + "px";
+      monthsRow.appendChild(label);
+    });
+
+    // Summary stats
+    const avg = (totalIncidents / heatmapData.length).toFixed(1);
+    const bDate = busiestDay.date;
+    const bDateStr = `${MONTHS[bDate.getMonth()]} ${bDate.getDate()}`;
+    document.getElementById("heatmap-stats").innerHTML =
+      `<span>${totalIncidents.toLocaleString()}</span> total incidents &nbsp;|&nbsp; ` +
+      `Busiest day: <span>${bDateStr} (${busiestDay.count} incidents)</span> &nbsp;|&nbsp; ` +
+      `Avg: <span>${avg}/day</span>`;
+
+    // ═══════════════════════════════════════════════════
+    //  DATA TABLE
+    // ═══════════════════════════════════════════════════
+    const TYPES = ["Fire", "Flood", "Tornado", "Infrastructure", "Medical"];
+    const SEVERITIES = ["Critical", "High", "Medium", "Low"];
+    const STATUSES = ["Active", "Resolved", "Monitoring"];
+    const LOCATIONS = [
+      "Houston, TX", "Miami, FL", "Atlanta, GA", "Denver, CO", "Phoenix, AZ",
+      "Chicago, IL", "Seattle, WA", "Portland, OR", "Nashville, TN", "Charlotte, NC",
+      "San Antonio, TX", "Dallas, TX", "Tulsa, OK", "Jacksonville, FL", "Columbus, OH",
+      "Kansas City, MO", "Louisville, KY", "Memphis, TN", "Baton Rouge, LA", "Raleigh, NC",
+      "St. Louis, MO", "Tampa, FL", "Sacramento, CA", "Omaha, NE", "Little Rock, AR",
+      "Birmingham, AL", "Richmond, VA", "Charleston, SC", "Spokane, WA", "Albuquerque, NM"
+    ];
+
+    const sevKindMap = { Critical: "danger", High: "inverse", Medium: "brand", Low: "neutral" };
+    const statusKindMap = { Active: "brand", Resolved: "success", Monitoring: "warning" };
+
+    // Generate 30 sample rows
+    const tableData = [];
+    const rand2 = seededRandom(42);
+    for (let i = 0; i < 30; i++) {
+      const month = Math.floor(rand2() * 12);
+      const day = Math.floor(rand2() * 28) + 1;
+      const dateObj = new Date(2024, month, day);
+      const dateStr = dateObj.toISOString().slice(0, 10);
+      const idNum = 1001 + Math.floor(rand2() * 8999);
+      tableData.push({
+        date: dateStr,
+        dateObj,
+        id: `INC-2024-${idNum}`,
+        type: TYPES[Math.floor(rand2() * TYPES.length)],
+        location: LOCATIONS[i % LOCATIONS.length],
+        severity: SEVERITIES[Math.floor(rand2() * SEVERITIES.length)],
+        response: (2 + rand2() * 28).toFixed(1),
+        status: STATUSES[Math.floor(rand2() * STATUSES.length)]
+      });
+    }
+
+    let currentSort = { field: "date", dir: "desc" };
+    let filteredData = [...tableData];
+
+    function renderTable(data) {
+      const table = document.getElementById("incident-table");
+      // Remove existing body rows
+      table.querySelectorAll("calcite-table-row:not([slot='table-header'])").forEach(r => r.remove());
+
+      data.forEach(row => {
+        const tr = document.createElement("calcite-table-row");
+
+        // Date
+        const tdDate = document.createElement("calcite-table-cell");
+        tdDate.innerHTML = `<span class="mono" style="font-size:13px">${row.date}</span>`;
+        tr.appendChild(tdDate);
+
+        // ID
+        const tdId = document.createElement("calcite-table-cell");
+        tdId.innerHTML = `<span class="mono" style="font-size:13px">${row.id}</span>`;
+        tr.appendChild(tdId);
+
+        // Type
+        const tdType = document.createElement("calcite-table-cell");
+        tdType.textContent = row.type;
+        tr.appendChild(tdType);
+
+        // Location
+        const tdLoc = document.createElement("calcite-table-cell");
+        tdLoc.textContent = row.location;
+        tr.appendChild(tdLoc);
+
+        // Severity chip
+        const tdSev = document.createElement("calcite-table-cell");
+        tdSev.innerHTML = `<calcite-chip scale="s" kind="${sevKindMap[row.severity]}" appearance="solid">${row.severity}</calcite-chip>`;
+        tr.appendChild(tdSev);
+
+        // Response time
+        const tdResp = document.createElement("calcite-table-cell");
+        tdResp.innerHTML = `<span class="mono" style="font-size:13px">${row.response} min</span>`;
+        tr.appendChild(tdResp);
+
+        // Status chip
+        const tdStatus = document.createElement("calcite-table-cell");
+        tdStatus.innerHTML = `<calcite-chip scale="s" kind="${statusKindMap[row.status]}" appearance="solid">${row.status}</calcite-chip>`;
+        tr.appendChild(tdStatus);
+
+        table.appendChild(tr);
+      });
+    }
+
+    // Sorting
+    function sortData(field, dir) {
+      filteredData.sort((a, b) => {
+        let va, vb;
+        if (field === "date") { va = a.date; vb = b.date; }
+        else if (field === "id") { va = a.id; vb = b.id; }
+        else if (field === "type") { va = a.type; vb = b.type; }
+        else if (field === "location") { va = a.location; vb = b.location; }
+        else if (field === "severity") {
+          const order = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+          va = order[a.severity]; vb = order[b.severity];
+        }
+        else if (field === "response") { va = parseFloat(a.response); vb = parseFloat(b.response); }
+        else if (field === "status") { va = a.status; vb = b.status; }
+        if (va < vb) return dir === "asc" ? -1 : 1;
+        if (va > vb) return dir === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Header click handlers
+    document.querySelectorAll("calcite-table-header[data-sort]").forEach(header => {
+      header.addEventListener("click", () => {
+        const field = header.dataset.sort;
+        if (currentSort.field === field) {
+          currentSort.dir = currentSort.dir === "asc" ? "desc" : "asc";
+        } else {
+          currentSort = { field, dir: "asc" };
+        }
+        // Update header indicators
+        document.querySelectorAll("calcite-table-header[data-sort]").forEach(h => {
+          const base = h.getAttribute("heading").replace(/ [▲▼]$/, "");
+          if (h.dataset.sort === currentSort.field) {
+            h.heading = base + (currentSort.dir === "asc" ? " ▲" : " ▼");
+          } else {
+            h.heading = base;
+          }
+        });
+        sortData(currentSort.field, currentSort.dir);
+        renderTable(filteredData);
+      });
+    });
+
+    // Filter handlers
+    document.getElementById("apply-filter").addEventListener("click", () => {
+      const typeVal = document.getElementById("type-filter").value;
+      const sevVal = document.getElementById("severity-filter").value;
+
+      filteredData = tableData.filter(row => {
+        if (typeVal !== "All" && row.type !== typeVal) return false;
+        if (sevVal !== "All" && row.severity !== sevVal) return false;
+        return true;
+      });
+
+      sortData(currentSort.field, currentSort.dir);
+      renderTable(filteredData);
+
+      const parts = [];
+      if (typeVal !== "All") parts.push(`Type: ${typeVal}`);
+      if (sevVal !== "All") parts.push(`Severity: ${sevVal}`);
+      const msg = parts.length ? parts.join(", ") + ` — ${filteredData.length} results` : `All records shown — ${filteredData.length} results`;
+      document.getElementById("filter-alert-msg").textContent = msg;
+      document.getElementById("filter-alert").open = true;
+    });
+
+    document.getElementById("reset-filter").addEventListener("click", () => {
+      document.getElementById("type-filter").value = "All";
+      document.getElementById("severity-filter").value = "All";
+      filteredData = [...tableData];
+      sortData(currentSort.field, currentSort.dir);
+      renderTable(filteredData);
+      document.getElementById("filter-alert-msg").textContent = "Filters cleared — showing all records.";
+      document.getElementById("filter-alert").open = true;
+    });
+
+    // Initial render
+    sortData("date", "desc");
+    renderTable(filteredData);
+  </script>
+</body>
+</html>
