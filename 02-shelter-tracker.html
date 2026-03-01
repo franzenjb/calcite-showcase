@@ -200,14 +200,16 @@
       icon="clipboard-check"
     ></calcite-navigation-logo>
 
-    <calcite-action
-      slot="content-end"
-      id="themeToggle"
-      icon="brightness"
-      text="Toggle theme"
-      appearance="transparent"
-      scale="m"
-    ></calcite-action>
+    <div slot="content-end" style="display:flex; align-items:center; gap:8px;">
+      <calcite-link href="index.html" style="font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:1px;">← Gallery</calcite-link>
+      <calcite-action
+        id="themeToggle"
+        icon="brightness"
+        text="Toggle theme"
+        appearance="transparent"
+        scale="m"
+      ></calcite-action>
+    </div>
     <calcite-navigation-user
       slot="user"
       full-name="Jeff Franzen"

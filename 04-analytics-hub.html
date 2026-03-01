@@ -324,13 +324,15 @@
         description="Incident Intelligence"
         icon="graph-bar-side-by-side">
       </calcite-navigation-logo>
-      <calcite-action
-        slot="content-end"
-        id="theme-toggle"
-        icon="moon"
-        text="Toggle dark mode"
-        appearance="transparent">
-      </calcite-action>
+      <div slot="content-end" style="display:flex; align-items:center; gap:8px;">
+        <calcite-link href="index.html" style="font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:1px;">← Gallery</calcite-link>
+        <calcite-action
+          id="theme-toggle"
+          icon="moon"
+          text="Toggle dark mode"
+          appearance="transparent">
+        </calcite-action>
+      </div>
       <calcite-navigation-user
         slot="user"
         full-name="Jeff Franzen"
